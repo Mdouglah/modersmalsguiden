@@ -123,7 +123,7 @@ Svara ENDAST med ett JSON-objekt i detta exakta format (inga backticks eller fö
         },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
+          max_tokens: 4000,
           messages: [{ role: "user", content: prompt }],
         }),
       });
@@ -134,7 +134,7 @@ Svara ENDAST med ett JSON-objekt i detta exakta format (inga backticks eller fö
       setResultat(parsed);
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
     } catch (e) {
-      setResultat({ fel: "Kunde inte generera lektionsplanen. Försök igen." });
+      console.error("API error:", e); setResultat({ fel: "Kunde inte generera lektionsplanen. Försök igen." });
     }
     setLaddning(false);
   }
