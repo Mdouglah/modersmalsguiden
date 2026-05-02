@@ -13,13 +13,13 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "claude-3-5-sonnet-20241022",
-        max_tokens: 4000,
-        messages: req.body.messages || [{ role: "user", content: req.body.prompt || "test" }],
+        max_tokens: 1000,
+        messages: req.body.messages || [{ role: "user", content: req.body.prompt || "Hej" }],
       }),
     });
 
     const data = await response.json();
-return res.status(200).json(data);
+    return res.status(200).json(data);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
