@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef } from "react"; 
 
 const SPRAK = [
   { namn: "Arabiska", kod: "ar", flagga: "🇸🇦" },
