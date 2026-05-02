@@ -113,16 +113,11 @@ Svara ENDAST med ett JSON-objekt i detta exakta format (inga backticks eller fö
 }`;
 
     try {
-      const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      const resp = await fetch("/api/generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "anthropic-dangerous-direct-browser-access": "true",
-          "x-api-key": import.meta.env.VITE_ANTHROPIC_API_KEY,
-          "anthropic-version": "2023-06-01",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-3-5-sonnet-20241022", 
+          model: "claude-3-5-sonnet-20241022",
           max_tokens: 4000,
           messages: [{ role: "user", content: prompt }],
         }),
