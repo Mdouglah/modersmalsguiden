@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"; 
+import { useState, useRef } from "react";
 
 const SPRAK = [
   { namn: "Arabiska", kod: "ar", flagga: "🇸🇦" },
@@ -116,7 +116,11 @@ Svara ENDAST med ett JSON-objekt i detta exakta format (inga backticks eller fö
       const resp = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: prompt }),
+        body: JSON.stringify({
+          model: "claude-3-5-sonnet-20241022",
+          max_tokens: 4000,
+          messages: [{ role: "user", content: prompt }],
+        }),
       });
       const data = await resp.json();
       const text = data.content?.map(b => b.text || "").join("") || "";
