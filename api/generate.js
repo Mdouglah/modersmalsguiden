@@ -4,6 +4,8 @@ export default async function handler(req, res) {
   }
 
   try {
+    const { prompt } = req.body;
+    
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -13,14 +15,14 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "claude-3-5-sonnet-20241022",
-        max_tokens: 2000,
-        messages: req.body.messages,
+        max_tokens: 4000,
+        messages: [{ role: "user", content: prompt }],
       }),
     });
 
     const data = await response.json();
     return res.status(200).json(data);
   } catch (error) {
-    return res.status(500).json({ error: "Något gick fel, försök igen." });
+    return res.status(500).json({ error: error.message });
   }
 }
