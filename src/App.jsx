@@ -125,8 +125,9 @@ Svara ENDAST med ett JSON-objekt i detta exakta format (inga backticks eller fö
       const data = await resp.json();
       const text = data.content?.map(b => b.text || "").join("") || "";
       const clean = text.replace(/```json|```/g, "").trim();
-      const parsed = JSON.parse(clean);
-      setResultat(parsed);
+console.log("Svar från API:", clean);
+const parsed = JSON.parse(clean);
+setResultat(parsed);
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
     } catch (e) {
       console.error("API error:", e); setResultat({ fel: "Kunde inte generera lektionsplanen. Försök igen." });
