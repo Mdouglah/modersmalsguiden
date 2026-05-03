@@ -79,37 +79,33 @@ export default function App() {
     setResultat(null);
 
     const nivaLista = valdaNivaer.join(", ");
-    const prompt = `Du är en erfaren modersmålslärare och pedagogisk expert med djup kunskap om Lgr22 kursplanen för modersmål i svenska skolan.
 
-Skapa en komplett och detaljerad differentierad lektionsplan på SVENSKA för modersmålsundervisning.
+    const prompt = `Du är modersmålslärare. Skapa en kort differentierad lektionsplan på svenska.
 
-Språk: ${sprakNamn}
-Stadium: ${stadium?.namn} (årskurs ${stadium?.ar})
-Ämnesområde: ${omrade}
-Lektionstid: ${lektionstid}
-Elevnivåer i gruppen: ${nivaLista}
+Språk: ${sprakNamn} | Stadium: ${stadium?.namn} (åk ${stadium?.ar}) | Område: ${omrade} | Tid: ${lektionstid}
+Nivåer: ${nivaLista}
 
-Svara ENDAST med ett JSON-objekt i detta exakta format (inga backticks eller förklaringar):
+Svara ENDAST med JSON (inga backticks, inga förklaringar):
 {
-  "titel": "Lektionens titel på svenska",
-  "titelMalsprak": "Lektionens titel på ${sprakNamn}",
-  "malSvenska": "Lärandemål på svenska (2-3 meningar)",
-  "malMalsprak": "Lärandemål på ${sprakNamn} (2-3 meningar)",
-  "lgr22": "Relevant koppling till Lgr22 kursplan för modersmål",
+  "titel": "Kort lektionstitel på svenska",
+  "titelMalsprak": "Titel på ${sprakNamn}",
+  "malSvenska": "Lärandemål på svenska (1-2 meningar)",
+  "malMalsprak": "Lärandemål på ${sprakNamn} (1-2 meningar)",
+  "lgr22": "Relevant Lgr22-koppling för modersmål (1 mening)",
   "nivaer": [
     ${valdaNivaer.map(n => `{
       "niva": "${n}",
-      "aktivitetSvenska": "Detaljerad aktivitetsbeskrivning för ${n}-nivå på svenska (3-4 meningar med konkreta uppgifter)",
-      "aktivitetMalsprak": "Samma aktivitetsbeskrivning på ${sprakNamn}",
-      "uppgiftSvenska": "En konkret skriftlig eller muntlig uppgift för denna nivå på svenska",
+      "aktivitetSvenska": "Aktivitet för ${n}-nivå på svenska (2 meningar)",
+      "aktivitetMalsprak": "Samma aktivitet på ${sprakNamn} (2 meningar)",
+      "uppgiftSvenska": "En konkret uppgift för ${n}-nivå på svenska",
       "uppgiftMalsprak": "Samma uppgift på ${sprakNamn}",
-      "stod": "Lärarstöd och scaffolding-tips för denna nivå"
+      "stod": "Lärarstöd för ${n}-nivå (1 mening)"
     }`).join(",\n    ")}
   ],
-  "avslutning": "Gemensam avslutning för hela gruppen på svenska (1-2 meningar)",
-  "avslutningMalsprak": "Samma avslutning på ${sprakNamn}",
-  "materialSvenska": "Behövligt material och resurser",
-  "bedomning": "Formativ bedömningsidé kopplad till Lgr22"
+  "avslutning": "Gemensam avslutning på svenska (1 mening)",
+  "avslutningMalsprak": "Avslutning på ${sprakNamn} (1 mening)",
+  "materialSvenska": "Behövligt material (kort)",
+  "bedomning": "Formativ bedömningsidé kopplad till Lgr22 (1 mening)"
 }`;
 
     try {
@@ -117,20 +113,23 @@ Svara ENDAST med ett JSON-objekt i detta exakta format (inga backticks eller fö
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-3-5-sonnet-20241022",
-          max_tokens: 4000,
           messages: [{ role: "user", content: prompt }],
         }),
       });
       const data = await resp.json();
+
+      if (!resp.ok) {
+        throw new Error(data.error || "Serverfel");
+      }
+
       const text = data.content?.map(b => b.text || "").join("") || "";
       const clean = text.replace(/```json|```/g, "").trim();
-console.log("Svar från API:", clean);
-const parsed = JSON.parse(clean);
-setResultat(parsed);
+      const parsed = JSON.parse(clean);
+      setResultat(parsed);
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
     } catch (e) {
-      console.error("API error:", e); setResultat({ fel: "Kunde inte generera lektionsplanen. Försök igen." });
+      console.error("API error:", e);
+      setResultat({ fel: "Kunde inte generera lektionsplanen. Försök igen." });
     }
     setLaddning(false);
   }
@@ -149,14 +148,6 @@ setResultat(parsed);
   function skrivUt() {
     window.print();
   }
-
-  const nivaBakgrund = {
-    "Nybörjare": "#e8f4e8",
-    "Grundnivå": "#e8eef8",
-    "Mellannivå": "#fff3e0",
-    "Avancerad": "#fce4ec",
-    "Modersmålsnära": "#f3e5f5",
-  };
 
   const nivaFarg = {
     "Nybörjare": "#2e7d32",
@@ -201,6 +192,7 @@ setResultat(parsed);
         .steg-punkt { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: all 0.3s; }
         .steg-punkt.aktiv { background: #e8b86d; width: 24px; border-radius: 4px; }
         .steg-punkt.klar { background: rgba(232,184,109,0.5); }
+        .varning { background: rgba(232,184,109,0.08); border: 1px solid rgba(232,184,109,0.3); border-radius: 10px; padding: 12px 16px; margin-top: 14px; font-size: 13px; color: #e8b86d; line-height: 1.5; }
         @media print {
           body { background: white !important; color: black !important; }
           .no-print { display: none !important; }
@@ -250,8 +242,6 @@ setResultat(parsed);
                       <button className="knapp-prim" onClick={resetAllt}>Ny plan</button>
                     </div>
                   </div>
-
-                  {/* Metadata */}
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "16px" }}>
                     {[sprakNamn, stadium?.namn, omrade, lektionstid].map(tag => (
                       <span key={tag} style={{ background: "rgba(232,184,109,0.12)", border: "1px solid rgba(232,184,109,0.25)", borderRadius: "6px", padding: "4px 10px", fontSize: "12px", color: "#e8b86d" }}>{tag}</span>
@@ -286,7 +276,7 @@ setResultat(parsed);
                     borderLeftColor: nivaFarg[n.niva] || "#888",
                     marginBottom: "14px"
                   }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                    <div style={{ marginBottom: "12px" }}>
                       <span style={{ fontWeight: 600, fontSize: "15px", color: nivaFarg[n.niva] || "#e8e8f0" }}>{n.niva}</span>
                     </div>
                     <div style={{ marginBottom: "10px" }}>
@@ -334,6 +324,11 @@ setResultat(parsed);
           <div style={{ textAlign: "center", padding: "60px 20px" }}>
             <div className="spinner" style={{ margin: "0 auto 20px" }}/>
             <p style={{ color: "#8080b0" }}>Genererar differentierad lektionsplan…</p>
+            {valdaNivaer.length > 3 && (
+              <p style={{ color: "#6060a0", fontSize: "13px", marginTop: "8px" }}>
+                Du har valt {valdaNivaer.length} nivåer – detta kan ta lite längre tid.
+              </p>
+            )}
           </div>
         )}
 
@@ -426,11 +421,20 @@ setResultat(parsed);
                     </div>
                   ))}
                 </div>
+
                 {valdaNivaer.length > 0 && (
                   <p style={{ marginTop: "14px", fontSize: "13px", color: "#8080b0" }}>
                     Valda nivåer: {valdaNivaer.join(", ")}
                   </p>
                 )}
+
+                {/* Varning vid fler än 3 nivåer */}
+                {valdaNivaer.length > 3 && (
+                  <div className="varning">
+                    ⚠️ Du har valt {valdaNivaer.length} nivåer. Det fungerar men kan ta upp till 40–50 sekunder. Välj max 3 nivåer för snabbare resultat.
+                  </div>
+                )}
+
                 <div style={{ marginTop: "24px", display: "flex", justifyContent: "space-between" }}>
                   <button className="knapp-sek" onClick={() => setSteg(2)}>← Tillbaka</button>
                   <button className="knapp-prim" disabled={valdaNivaer.length === 0} onClick={() => setSteg(4)}>Nästa →</button>
