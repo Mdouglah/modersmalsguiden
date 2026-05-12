@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 
 const SPRAK = [
   { namn: "Arabiska", kod: "ar", flagga: "🇸🇦", sokord: ["ar", "arab"] },
+  { namn: "Armeniska", kod: "hy", flagga: "🇦🇲" },
   { namn: "Somaliska", kod: "so", flagga: "🇸🇴", sokord: ["so", "som"] },
   { namn: "Persiska/Dari", kod: "fa", flagga: "🇮🇷", sokord: ["fa", "per", "dari"] },
   { namn: "Polska", kod: "pl", flagga: "🇵🇱", sokord: ["pl", "pol"] },
