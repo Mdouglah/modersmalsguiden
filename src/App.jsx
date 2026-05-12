@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 const SPRAK = [
   { namn: "Arabiska", kod: "ar", flagga: "🇸🇦", sokord: ["ar", "arab"] },
@@ -58,6 +58,16 @@ const NIVA_FARG = {
 
 const STEG_LABELS = ["Språk", "Stadium", "Nivåer", "Generera"];
 
+const LADDNINGS_STEG = [
+  { text: "Analyserar Lgr22 kursplan…", ikon: "📚" },
+  { text: "Skapar differentierade uppgifter…", ikon: "✏️" },
+  { text: "Anpassar för dina elevnivåer…", ikon: "🎯" },
+  { text: "Översätter material till målspråket…", ikon: "🌍" },
+  { text: "Kopplar till lärandemål…", ikon: "📌" },
+  { text: "Förbereder lektionsplanen…", ikon: "📋" },
+  { text: "Nästan klar…", ikon: "✨" },
+];
+
 function exportText(resultat, sprakNamn, stadium, omrade, lektionstid) {
   let t = `MODERSMÅLSGUIDEN – Lgr22\n${"=".repeat(40)}\n`;
   t += `Språk: ${sprakNamn} | Stadium: ${stadium?.namn} | Område: ${omrade} | Tid: ${lektionstid}\n\n`;
@@ -86,14 +96,27 @@ export default function App() {
   const [valdaNivaer, setValdaNivaer] = useState([]);
   const [lektionstid, setLektionstid] = useState("45 min");
   const [laddning, setLaddning] = useState(false);
+  const [laddningsSteg, setLaddningsSteg] = useState(0);
   const [resultat, setResultat] = useState(null);
   const [sprakvisning, setSprakvisning] = useState("svenska");
   const [sokterm, setSokterm] = useState("");
   const [copied, setCopied] = useState(false);
   const [aktivNiva, setAktivNiva] = useState(null);
   const resultRef = useRef(null);
+  const intervalRef = useRef(null);
 
-  // Smart filtrering – matchar namn, kod och sokord
+  useEffect(() => {
+    if (laddning) {
+      setLaddningsSteg(0);
+      intervalRef.current = setInterval(() => {
+        setLaddningsSteg(prev => (prev + 1) % LADDNINGS_STEG.length);
+      }, 3500);
+    } else {
+      clearInterval(intervalRef.current);
+    }
+    return () => clearInterval(intervalRef.current);
+  }, [laddning]);
+
   const filtrerade = SPRAK.filter(s => {
     const t = sokterm.toLowerCase().trim();
     if (!t) return true;
@@ -201,7 +224,9 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
         @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%,100% { opacity:.3 } 50% { opacity:1 } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .fade-up { animation: fadeUp .35s ease; }
+        .fade-in { animation: fadeIn .5s ease; }
         .kort { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; }
         .knapp-prim { background: linear-gradient(135deg, #e8b86d, #d4965a); color: #1a1a2e; border: none; border-radius: 12px; padding: 13px 26px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; }
         .knapp-prim:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,184,109,0.35); }
@@ -227,7 +252,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
         input[type="text"] { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.13); border-radius: 10px; padding: 10px 14px; color: #e8e8f0; font-size: 14px; outline: none; width: 100%; font-family: inherit; }
         input[type="text"]::placeholder { color: #505080; }
         input[type="text"]:focus { border-color: rgba(232,184,109,0.5); background: rgba(255,255,255,0.09); }
-        .spinner { width: 38px; height: 38px; border: 3px solid rgba(232,184,109,0.15); border-top-color: #e8b86d; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        .spinner { width: 52px; height: 52px; border: 3px solid rgba(232,184,109,0.12); border-top-color: #e8b86d; border-radius: 50%; animation: spin 0.9s linear infinite; }
         .dot { width: 7px; height: 7px; border-radius: 50%; background: #e8b86d; animation: pulse 1.2s ease infinite; }
         .steg-punkt { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.15); transition: all 0.3s; }
         .steg-punkt.aktiv { background: #e8b86d; width: 24px; border-radius: 4px; }
@@ -235,6 +260,9 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
         .varning { background: rgba(232,184,109,0.07); border: 1px solid rgba(232,184,109,0.25); border-radius: 10px; padding: 11px 14px; margin-top: 12px; font-size: 13px; color: #e8b86d; line-height: 1.5; }
         .stat-box { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; text-align: center; }
         .chip { background: rgba(232,184,109,0.11); border: 1px solid rgba(232,184,109,0.22); border-radius: 6px; padding: 3px 10px; font-size: 12px; color: #e8b86d; display: inline-block; }
+        .laddnings-text { animation: fadeIn 0.5s ease; }
+        .progress-bar { height: 3px; background: rgba(232,184,109,0.15); border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #e8b86d, #f5d69a); border-radius: 2px; transition: width 3.5s linear; }
         @media print {
           body { background: white !important; color: black !important; }
           .no-print { display: none !important; }
@@ -260,18 +288,11 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
         <p style={{ color: "#6060a0", fontSize: "14px", marginBottom: "6px" }}>
           Differentierad lektionsplanering för modersmålslärare · Lgr22
         </p>
-        {/* TAGLINE */}
         {!resultat && !laddning && (
           <p style={{
-            color: "#e8b86d",
-            fontSize: "13px",
-            fontWeight: 600,
-            background: "rgba(232,184,109,0.08)",
-            border: "1px solid rgba(232,184,109,0.2)",
-            borderRadius: "20px",
-            padding: "5px 16px",
-            display: "inline-block",
-            marginTop: "4px",
+            color: "#e8b86d", fontSize: "13px", fontWeight: 600,
+            background: "rgba(232,184,109,0.08)", border: "1px solid rgba(232,184,109,0.2)",
+            borderRadius: "20px", padding: "5px 16px", display: "inline-block", marginTop: "4px",
           }}>
             ✨ Skapa en färdig lektionsplan på under en minut
           </p>
@@ -294,6 +315,51 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
           </div>
         )}
 
+        {/* ── LADDNING ── */}
+        {laddning && (
+          <div style={{ textAlign: "center", padding: "60px 20px" }} className="fade-up">
+            <div className="spinner" style={{ margin: "0 auto 28px" }} />
+            
+            {/* Ikon */}
+            <div style={{ fontSize: "2rem", marginBottom: "10px" }} className="laddnings-text">
+              {LADDNINGS_STEG[laddningsSteg].ikon}
+            </div>
+            
+            {/* Roterande meddelande */}
+            <p style={{ 
+              color: "#e8b86d", 
+              fontSize: "16px", 
+              fontWeight: 600, 
+              marginBottom: "8px",
+            }} className="laddnings-text" key={laddningsSteg}>
+              {LADDNINGS_STEG[laddningsSteg].text}
+            </p>
+            
+            <p style={{ color: "#5050a0", fontSize: "13px", marginBottom: "24px" }}>
+              Detta tar vanligtvis 20–30 sekunder
+            </p>
+
+            {/* Progress-punkter */}
+            <div style={{ display: "flex", gap: "6px", justifyContent: "center", marginBottom: "20px" }}>
+              {LADDNINGS_STEG.map((_, i) => (
+                <div key={i} style={{
+                  width: i === laddningsSteg ? "20px" : "6px",
+                  height: "6px",
+                  borderRadius: "3px",
+                  background: i <= laddningsSteg ? "#e8b86d" : "rgba(255,255,255,0.1)",
+                  transition: "all 0.4s ease",
+                }} />
+              ))}
+            </div>
+
+            {valdaNivaer.length > 3 && (
+              <p style={{ color: "#5050a0", fontSize: "12px" }}>
+                {valdaNivaer.length} nivåer valda – kan ta upp till 40 sekunder
+              </p>
+            )}
+          </div>
+        )}
+
         {/* ── RESULTAT ── */}
         {resultat && !laddning && (
           <div ref={resultRef} className="fade-up">
@@ -305,15 +371,11 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
               </div>
             ) : (
               <>
-                {/* Resultathuvud */}
                 <div style={{
                   background: "linear-gradient(135deg, rgba(232,184,109,0.14), rgba(212,150,90,0.07))",
                   border: "1px solid rgba(232,184,109,0.22)",
-                  borderRadius: "18px",
-                  padding: "24px",
-                  marginBottom: "14px",
-                  position: "relative",
-                  overflow: "hidden",
+                  borderRadius: "18px", padding: "24px", marginBottom: "14px",
+                  position: "relative", overflow: "hidden",
                 }} className="no-print">
                   <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "rgba(232,184,109,0.06)" }} />
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px", marginBottom: "14px" }}>
@@ -334,11 +396,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                     ))}
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}>
-                    {[
-                      ["Nivåer", valdaNivaer.length],
-                      ["Område", omrade?.split(" ")[0] + "…"],
-                      ["Tid", lektionstid],
-                    ].map(([lb, v]) => (
+                    {[["Nivåer", valdaNivaer.length], ["Område", omrade?.split(" ")[0] + "…"], ["Tid", lektionstid]].map(([lb, v]) => (
                       <div key={lb} className="stat-box">
                         <div style={{ fontSize: "15px", fontWeight: 700, color: "#e8b86d" }}>{v}</div>
                         <div style={{ fontSize: "11px", color: "#5050a0" }}>{lb}</div>
@@ -347,13 +405,11 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                   </div>
                 </div>
 
-                {/* Lgr22 */}
                 <div style={{ background: "rgba(21,101,192,0.09)", border: "1px solid rgba(21,101,192,0.22)", borderRadius: "12px", padding: "14px 18px", marginBottom: "14px" }}>
                   <div style={{ fontSize: "11px", color: "#90caf9", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "5px" }}>📌 Lgr22-koppling</div>
                   <p style={{ fontSize: "13px", color: "#b0d4f8", lineHeight: "1.65", fontStyle: "italic" }}>{resultat.lgr22}</p>
                 </div>
 
-                {/* Lärandemål */}
                 <div className="kort" style={{ padding: "20px", marginBottom: "14px" }}>
                   <div style={{ display: "flex", gap: "8px", marginBottom: "14px" }} className="no-print">
                     {["svenska", "malsprak"].map(v => (
@@ -368,10 +424,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                   </p>
                 </div>
 
-                {/* Nivå-tabs */}
-                <div style={{ fontSize: "11px", color: "#5050a0", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "10px" }}>
-                  Differentierade aktiviteter
-                </div>
+                <div style={{ fontSize: "11px", color: "#5050a0", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "10px" }}>Differentierade aktiviteter</div>
                 <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "14px" }} className="no-print">
                   {resultat.nivaer?.map((n, i) => (
                     <button key={i} className="niva-tab"
@@ -392,7 +445,6 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                   )}
                 </div>
 
-                {/* Nivå-sektioner */}
                 {resultat.nivaer?.map((n, i) => (
                   (aktivNiva === null || aktivNiva === i) && (
                     <div key={i} className="niva-sektion fade-up" style={{ borderLeftColor: NIVA_FARG[n.niva] || "#888" }}>
@@ -416,7 +468,6 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                   )
                 ))}
 
-                {/* Avslutning + Material */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "4px" }}>
                   <div className="kort" style={{ padding: "16px" }}>
                     <div style={{ fontSize: "11px", color: "#6060a0", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>Gemensam avslutning</div>
@@ -434,7 +485,6 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                   <p style={{ fontSize: "13px", color: "#b8b8d8", lineHeight: "1.65" }}>{resultat.bedomning}</p>
                 </div>
 
-                {/* Knappar nere */}
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "22px", justifyContent: "center" }} className="no-print">
                   <button className="knapp-copy" onClick={kopiera}>{copied ? "✅ Kopierat!" : "📋 Kopiera text"}</button>
                   <button className="knapp-print" onClick={() => window.print()}>🖨️ Skriv ut</button>
@@ -446,38 +496,14 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
           </div>
         )}
 
-        {/* ── LADDNING ── */}
-        {laddning && (
-          <div style={{ textAlign: "center", padding: "70px 20px" }} className="fade-up">
-            <div className="spinner" style={{ margin: "0 auto 20px" }} />
-            <p style={{ color: "#7070b0", marginBottom: "10px", fontSize: "15px" }}>Genererar differentierad lektionsplan…</p>
-            <div style={{ display: "flex", gap: "6px", justifyContent: "center", marginBottom: "14px" }}>
-              {[0, 0.2, 0.4].map((d, i) => <div key={i} className="dot" style={{ animationDelay: `${d}s` }} />)}
-            </div>
-            {valdaNivaer.length > 3 && (
-              <p style={{ color: "#5050a0", fontSize: "13px" }}>
-                {valdaNivaer.length} nivåer valda – kan ta upp till 40 sekunder
-              </p>
-            )}
-          </div>
-        )}
-
         {/* ── FORMULÄR ── */}
         {!resultat && !laddning && (
           <div className="fade-up">
-
-            {/* STEG 1 */}
             {steg === 1 && (
               <div className="kort" style={{ padding: "28px" }}>
                 <h2 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "4px" }}>Välj modersmål</h2>
                 <p style={{ color: "#6060a0", fontSize: "13px", marginBottom: "18px" }}>Vilket språk undervisar du i?</p>
-                <input
-                  type="text"
-                  placeholder="Sök eller skriv språk… (t.ex. 'ar', 'kur', 'arabiska')"
-                  value={sokterm}
-                  onChange={e => setSokterm(e.target.value)}
-                  style={{ marginBottom: "14px" }}
-                />
+                <input type="text" placeholder="Sök eller skriv språk…" value={sokterm} onChange={e => setSokterm(e.target.value)} style={{ marginBottom: "14px" }} />
                 {sokterm && filtrerade.length === 0 && (
                   <p style={{ fontSize: "13px", color: "#6060a0", marginBottom: "10px" }}>Inget språk hittades – välj "Annat språk" längst ned.</p>
                 )}
@@ -499,14 +525,11 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                   </div>
                 )}
                 <div style={{ marginTop: "22px", display: "flex", justifyContent: "flex-end" }}>
-                  <button className="knapp-prim" disabled={!sprak || (sprak.kod === "other" && !annatSprak)} onClick={() => setSteg(2)}>
-                    Fortsätt →
-                  </button>
+                  <button className="knapp-prim" disabled={!sprak || (sprak.kod === "other" && !annatSprak)} onClick={() => setSteg(2)}>Fortsätt →</button>
                 </div>
               </div>
             )}
 
-            {/* STEG 2 */}
             {steg === 2 && (
               <div className="kort" style={{ padding: "28px" }}>
                 <h2 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "4px" }}>Stadium och ämnesområde</h2>
@@ -515,8 +538,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                   <div style={{ fontSize: "11px", color: "#6060a0", marginBottom: "9px", textTransform: "uppercase", letterSpacing: "0.9px" }}>Stadium</div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "7px" }}>
                     {STADIER.map(s => (
-                      <div key={s.namn} className={`val-kort ${stadium?.namn === s.namn ? "vald" : ""}`}
-                        onClick={() => setStadium(s)} style={{ flexDirection: "column", alignItems: "flex-start" }}>
+                      <div key={s.namn} className={`val-kort ${stadium?.namn === s.namn ? "vald" : ""}`} onClick={() => setStadium(s)} style={{ flexDirection: "column", alignItems: "flex-start" }}>
                         <span style={{ fontWeight: 600, fontSize: "14px" }}>{s.namn}</span>
                         <span style={{ fontSize: "11px", color: "#6060a0" }}>Åk {s.ar}</span>
                       </div>
@@ -549,15 +571,13 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
               </div>
             )}
 
-            {/* STEG 3 */}
             {steg === 3 && (
               <div className="kort" style={{ padding: "28px" }}>
                 <h2 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "4px" }}>Elevernas nivåer</h2>
                 <p style={{ color: "#6060a0", fontSize: "13px", marginBottom: "18px" }}>Välj de nivåer som finns i din grupp.</p>
                 <div style={{ display: "grid", gap: "9px" }}>
                   {NIVAER.map(n => (
-                    <div key={n} className={`val-kort ${valdaNivaer.includes(n) ? "vald" : ""}`}
-                      onClick={() => toggleNiva(n)} style={{ justifyContent: "space-between" }}>
+                    <div key={n} className={`val-kort ${valdaNivaer.includes(n) ? "vald" : ""}`} onClick={() => toggleNiva(n)} style={{ justifyContent: "space-between" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                         <div style={{ width: "11px", height: "11px", borderRadius: "50%", background: NIVA_FARG[n], flexShrink: 0 }} />
                         <span style={{ fontSize: "14px", fontWeight: 500 }}>{n}</span>
@@ -567,14 +587,10 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                   ))}
                 </div>
                 {valdaNivaer.length > 0 && (
-                  <p style={{ marginTop: "12px", fontSize: "12px", color: "#6060a0" }}>
-                    Valda: {valdaNivaer.join(", ")}
-                  </p>
+                  <p style={{ marginTop: "12px", fontSize: "12px", color: "#6060a0" }}>Valda: {valdaNivaer.join(", ")}</p>
                 )}
                 {valdaNivaer.length > 3 && (
-                  <div className="varning">
-                    ⚠️ Du har valt {valdaNivaer.length} nivåer – kan ta upp till 40–50 sekunder. Max 3 nivåer ger snabbare resultat.
-                  </div>
+                  <div className="varning">⚠️ Du har valt {valdaNivaer.length} nivåer – kan ta upp till 40–50 sekunder.</div>
                 )}
                 <div style={{ marginTop: "24px", display: "flex", justifyContent: "space-between" }}>
                   <button className="knapp-sek" onClick={() => setSteg(2)}>← Tillbaka</button>
@@ -583,7 +599,6 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
               </div>
             )}
 
-            {/* STEG 4 */}
             {steg === 4 && (
               <div className="kort" style={{ padding: "28px" }}>
                 <h2 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "4px" }}>Redo att generera</h2>
