@@ -68,6 +68,236 @@ const LADDNINGS_STEG = [
   { text: "Nästan klar…", ikon: "✨" },
 ];
 
+// ─── FEEDBACK MODAL ───────────────────────────────────────────────────────────
+function FeedbackModal({ onClose, sprakNamn }) {
+  const [svar, setSvar] = useState({
+    stadium: "", frekvens: "",
+    enkelhet: 0, tidsbesparing: 0, passning: 0,
+    tvasprak: 0, lgr22: 0, nivaer: 0,
+    spraktrogenhet: 0, guidning: 0, export_: 0,
+    tidsvinst: "", rekommenderar: "",
+    fungerade: "", saknas: "", ovrigt: ""
+  });
+  const [step, setStep] = useState("form");
+
+  function set(k, v) { setSvar(p => ({ ...p, [k]: v })); }
+
+  const ScaleRow = ({ label, field }) => (
+    <div style={{display:"flex",alignItems:"center",gap:".5rem",padding:".45rem 0",borderBottom:"1px solid rgba(255,255,255,0.06)"}}>
+      <span style={{flex:1,fontSize:".78rem",color:"#cccce8",lineHeight:1.4}}>{label}</span>
+      <div style={{display:"flex",gap:".25rem",flexShrink:0}}>
+        {[1,2,3,4,5].map(n => (
+          <button key={n} onClick={() => set(field, n)}
+            style={{width:28,height:28,borderRadius:"50%",
+              border:`2px solid ${svar[field]===n?"#e8b86d":"rgba(255,255,255,0.15)"}`,
+              background:svar[field]===n?"#e8b86d":"rgba(255,255,255,0.04)",
+              color:svar[field]===n?"#1a1a2e":"#8080b0",
+              cursor:"pointer",fontSize:".75rem",fontWeight:700,flexShrink:0}}>
+            {n}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const CheckRow = ({ label, field, options }) => (
+    <div style={{marginBottom:".6rem"}}>
+      {label && <p style={{margin:"0 0 .35rem",fontSize:".8rem",fontWeight:600,color:"#cccce8"}}>{label}</p>}
+      <div style={{display:"flex",flexWrap:"wrap",gap:".3rem"}}>
+        {options.map(opt => (
+          <button key={opt} onClick={() => set(field, svar[field]===opt?"":opt)}
+            style={{border:`2px solid ${svar[field]===opt?"#e8b86d":"rgba(255,255,255,0.15)"}`,
+              borderRadius:50,padding:".25rem .75rem",
+              background:svar[field]===opt?"rgba(232,184,109,0.15)":"rgba(255,255,255,0.04)",
+              color:svar[field]===opt?"#e8b86d":"#8080b0",
+              cursor:"pointer",fontFamily:"'DM Sans','Segoe UI',sans-serif",
+              fontSize:".75rem",fontWeight:svar[field]===opt?700:400}}>
+            {opt}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  function skicka() {
+    const rad = (label, val) => val ? `${label}: ${val}` : "";
+    const skala = (label, val) => val ? `${label}: ${val}/5` : "";
+    const body = [
+      "=== OM DIG ===",
+      rad("Stadium", svar.stadium),
+      rad("Hur ofta digitala planeringsverktyg", svar.frekvens),
+      "",
+      "=== ANVÄNDBARHET (1-5) ===",
+      skala("Enkelt att använda appen", svar.enkelhet),
+      skala("Sparade tid i planeringen", svar.tidsbesparing),
+      skala("Lektionsplanen passade min grupp", svar.passning),
+      skala("Tvåspråkigt innehåll (svenska + målspråk)", svar.tvasprak),
+      skala("Lgr22-kopplingen tydlig och relevant", svar.lgr22),
+      skala("Differentieringen (nivåerna) användbar", svar.nivaer),
+      "",
+      "=== SPECIFIKA FUNKTIONER (1-5) ===",
+      skala(`Språktrovärdighet på ${sprakNamn || "målspråket"}`, svar.spraktrogenhet),
+      skala("Guidningen genom de 4 stegen", svar.guidning),
+      skala("Kopiera- och skrivutfunktionen", svar.export_),
+      rad("Tidsbesparing per lektionsplanering", svar.tidsvinst),
+      rad("Skulle rekommendera appen", svar.rekommenderar),
+      "",
+      "=== ÖPPNA FRÅGOR ===",
+      rad("Vad fungerade bäst", svar.fungerade),
+      rad("Vad saknas eller kan förbättras", svar.saknas),
+      rad("Övriga kommentarer", svar.ovrigt),
+      "",
+      `Tidpunkt: ${new Date().toLocaleString("sv-SE")}`,
+    ].filter(r => r !== undefined).join("\n");
+
+    const subject = encodeURIComponent("ModersmålsGuiden – Feedback från lärare");
+    const bodyEncoded = encodeURIComponent(body);
+    window.location.href = `mailto:mustafa.douglah@enkoping.se?subject=${subject}&body=${bodyEncoded}`;
+    setStep("done");
+  }
+
+  const sectionStyle = {
+    background:"linear-gradient(135deg,rgba(232,184,109,0.18),rgba(212,150,90,0.1))",
+    border:"1px solid rgba(232,184,109,0.25)",
+    borderRadius:8, padding:".45rem .9rem",
+    marginBottom:".6rem", marginTop:".9rem"
+  };
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",zIndex:9999,
+        display:"flex",alignItems:"flex-start",justifyContent:"center",
+        padding:"1rem",overflowY:"auto"}}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div style={{
+        background:"linear-gradient(135deg,#1a1a2e,#16213e)",
+        border:"1px solid rgba(232,184,109,0.2)",
+        borderRadius:18,padding:"1.5rem",maxWidth:480,width:"100%",
+        boxShadow:"0 12px 50px rgba(0,0,0,0.5)",
+        fontFamily:"'DM Sans','Segoe UI',sans-serif",
+        marginTop:"1rem",marginBottom:"1rem"
+      }}>
+        {step === "form" && <>
+          {/* Rubrik */}
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"1rem"}}>
+            <div>
+              <div style={{fontSize:"1.3rem",marginBottom:".2rem"}}>💬</div>
+              <h3 style={{margin:0,color:"#e8b86d",fontSize:"1rem",fontWeight:700}}>Feedbackformulär</h3>
+              <p style={{margin:".15rem 0 0",color:"#6060a0",fontSize:".73rem"}}>
+                ModersmålsGuiden · Din feedback hjälper oss förbättra appen
+              </p>
+            </div>
+            <button onClick={onClose}
+              style={{background:"rgba(255,255,255,0.08)",border:"none",borderRadius:"50%",
+                width:30,height:30,cursor:"pointer",fontSize:".9rem",color:"#8080b0",flexShrink:0}}>✕</button>
+          </div>
+
+          {/* Sektion 1 */}
+          <div style={sectionStyle}>
+            <p style={{margin:0,color:"#e8b86d",fontWeight:700,fontSize:".82rem"}}>1. Om dig</p>
+          </div>
+          <CheckRow label="Vilket stadium undervisar du?" field="stadium"
+            options={["Lågstadiet 1–3","Mellanstadiet 4–6","Högstadiet 7–9"]} />
+          <CheckRow label="Hur ofta använder du digitala planeringsverktyg?" field="frekvens"
+            options={["Dagligen","Varje vecka","Sällan"]} />
+
+          {/* Sektion 2 */}
+          <div style={sectionStyle}>
+            <p style={{margin:0,color:"#e8b86d",fontWeight:700,fontSize:".82rem"}}>
+              2. Användbarhet &nbsp;
+              <span style={{fontWeight:400,fontSize:".72rem",opacity:.85}}>(1 = Inte alls · 5 = Mycket bra)</span>
+            </p>
+          </div>
+          <ScaleRow label="Det var enkelt att använda appen" field="enkelhet" />
+          <ScaleRow label="Appen sparade tid i min lektionsplanering" field="tidsbesparing" />
+          <ScaleRow label="Lektionsplanen passade min elevgrupp" field="passning" />
+          <ScaleRow label="Tvåspråkigt innehåll (svenska + målspråket) var användbart" field="tvasprak" />
+          <ScaleRow label="Kopplingen till Lgr22 var tydlig och relevant" field="lgr22" />
+          <ScaleRow label="Differentieringen (nivåerna) var pedagogiskt användbar" field="nivaer" />
+
+          {/* Sektion 3 */}
+          <div style={sectionStyle}>
+            <p style={{margin:0,color:"#e8b86d",fontWeight:700,fontSize:".82rem"}}>
+              3. Specifika funktioner &nbsp;
+              <span style={{fontWeight:400,fontSize:".72rem",opacity:.85}}>(1–5)</span>
+            </p>
+          </div>
+          <ScaleRow label={`Språktrovärdighet på ${sprakNamn || "målspråket"}`} field="spraktrogenhet" />
+          <ScaleRow label="Guidningen genom de 4 stegen" field="guidning" />
+          <ScaleRow label="Kopiera- och skrivutfunktionen" field="export_" />
+
+          <CheckRow label="Hur lång tid sparar du per lektionsplanering?" field="tidsvinst"
+            options={["Ingen","5–10 min","10–20 min","Mer än 20 min"]} />
+          <CheckRow label="Skulle du rekommendera appen till en kollega?" field="rekommenderar"
+            options={["Ja, definitivt","Troligtvis ja","Kanske","Nej"]} />
+
+          {/* Sektion 4 */}
+          <div style={sectionStyle}>
+            <p style={{margin:0,color:"#e8b86d",fontWeight:700,fontSize:".82rem"}}>4. Öppna frågor</p>
+          </div>
+
+          <p style={{margin:"0 0 .3rem",fontSize:".8rem",fontWeight:600,color:"#cccce8"}}>Vad fungerade bäst?</p>
+          <textarea value={svar.fungerade} onChange={e=>set("fungerade",e.target.value)}
+            placeholder="Skriv gärna specifikt…" rows={2}
+            style={{width:"100%",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.13)",
+              borderRadius:8,padding:".55rem .75rem",color:"#e8e8f0",
+              fontFamily:"'DM Sans','Segoe UI',sans-serif",fontSize:".8rem",
+              resize:"none",boxSizing:"border-box",outline:"none",marginBottom:".6rem"}}/>
+
+          <p style={{margin:"0 0 .3rem",fontSize:".8rem",fontWeight:600,color:"#cccce8"}}>Vad saknar du eller vad kan förbättras?</p>
+          <textarea value={svar.saknas} onChange={e=>set("saknas",e.target.value)}
+            placeholder="T.ex. funktioner, språk, innehåll, design…" rows={2}
+            style={{width:"100%",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.13)",
+              borderRadius:8,padding:".55rem .75rem",color:"#e8e8f0",
+              fontFamily:"'DM Sans','Segoe UI',sans-serif",fontSize:".8rem",
+              resize:"none",boxSizing:"border-box",outline:"none",marginBottom:".6rem"}}/>
+
+          <p style={{margin:"0 0 .3rem",fontSize:".8rem",fontWeight:600,color:"#cccce8"}}>
+            Övriga kommentarer <span style={{fontWeight:400,color:"#6060a0"}}>(valfritt)</span>
+          </p>
+          <textarea value={svar.ovrigt} onChange={e=>set("ovrigt",e.target.value)}
+            rows={2}
+            style={{width:"100%",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.13)",
+              borderRadius:8,padding:".55rem .75rem",color:"#e8e8f0",
+              fontFamily:"'DM Sans','Segoe UI',sans-serif",fontSize:".8rem",
+              resize:"none",boxSizing:"border-box",outline:"none",marginBottom:".9rem"}}/>
+
+          <div style={{display:"flex",gap:".5rem"}}>
+            <button onClick={onClose}
+              style={{flex:1,background:"transparent",border:"1px solid rgba(255,255,255,0.15)",
+                borderRadius:50,padding:".6rem",cursor:"pointer",
+                fontFamily:"'DM Sans','Segoe UI',sans-serif",fontSize:".8rem",color:"#8080b0"}}>
+              Avbryt
+            </button>
+            <button onClick={skicka}
+              style={{flex:2,background:"linear-gradient(135deg,#e8b86d,#d4965a)",color:"#1a1a2e",
+                border:"none",borderRadius:50,padding:".6rem",cursor:"pointer",
+                fontFamily:"'DM Sans','Segoe UI',sans-serif",fontSize:".82rem",fontWeight:700}}>
+              Skicka feedback ✉️
+            </button>
+          </div>
+        </>}
+
+        {step === "done" && (
+          <div style={{textAlign:"center",padding:"2rem 0"}}>
+            <div style={{fontSize:"2.2rem",marginBottom:".6rem"}}>✅</div>
+            <h3 style={{color:"#e8b86d",margin:"0 0 .4rem",fontSize:"1rem"}}>Tack för din feedback!</h3>
+            <p style={{color:"#8080b0",fontSize:".82rem",margin:"0 0 1.4rem",lineHeight:1.6}}>
+              Det hjälper oss att förbättra ModersmålsGuiden för alla lärare.
+            </p>
+            <button onClick={onClose}
+              style={{background:"linear-gradient(135deg,#e8b86d,#d4965a)",color:"#1a1a2e",
+                border:"none",borderRadius:50,padding:".6rem 2rem",
+                cursor:"pointer",fontFamily:"'DM Sans','Segoe UI',sans-serif",
+                fontSize:".83rem",fontWeight:700}}>
+              Stäng
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function exportText(resultat, sprakNamn, stadium, omrade, lektionstid) {
   let t = `MODERSMÅLSGUIDEN – Lgr22\n${"=".repeat(40)}\n`;
   t += `Språk: ${sprakNamn} | Stadium: ${stadium?.namn} | Område: ${omrade} | Tid: ${lektionstid}\n\n`;
@@ -102,6 +332,7 @@ export default function App() {
   const [sokterm, setSokterm] = useState("");
   const [copied, setCopied] = useState(false);
   const [aktivNiva, setAktivNiva] = useState(null);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const resultRef = useRef(null);
   const intervalRef = useRef(null);
 
@@ -192,16 +423,9 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
   }
 
   function resetAllt() {
-    setSteg(1);
-    setSprak(null);
-    setAnnatSprak("");
-    setStadium(null);
-    setOmrade(null);
-    setValdaNivaer([]);
-    setResultat(null);
-    setSokterm("");
-    setCopied(false);
-    setAktivNiva(null);
+    setSteg(1); setSprak(null); setAnnatSprak(""); setStadium(null);
+    setOmrade(null); setValdaNivaer([]); setResultat(null);
+    setSokterm(""); setCopied(false); setAktivNiva(null);
     window.scrollTo(0, 0);
   }
 
@@ -237,6 +461,8 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
         .knapp-copy:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(21,101,192,.4); }
         .knapp-print { background: linear-gradient(135deg, #6a1b9a, #4a148c); color: white; border: none; border-radius: 50px; padding: 10px 20px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .2s; }
         .knapp-print:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(106,27,154,.4); }
+        .knapp-feedback { background: transparent; border: 1px solid rgba(232,184,109,0.4); color: #e8b86d; border-radius: 50px; padding: 10px 20px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .2s; }
+        .knapp-feedback:hover { background: rgba(232,184,109,0.1); }
         .val-kort { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.09); border-radius: 12px; padding: 13px 16px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
         .val-kort:hover { background: rgba(232,184,109,0.08); border-color: rgba(232,184,109,0.35); }
         .val-kort.vald { background: rgba(232,184,109,0.12); border-color: #e8b86d; }
@@ -272,6 +498,8 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
         }
       `}</style>
 
+      {feedbackOpen && <FeedbackModal onClose={() => setFeedbackOpen(false)} sprakNamn={sprakNamn} />}
+
       {/* HEADER */}
       <div style={{ padding: "28px 24px 0", textAlign: "center" }} className="no-print">
         <div style={{ fontSize: "1.8rem", marginBottom: "6px" }}>📚</div>
@@ -297,6 +525,21 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
             ✨ Skapa en färdig lektionsplan på under en minut
           </p>
         )}
+        <div style={{ marginTop: "12px" }}>
+          <button onClick={() => setFeedbackOpen(true)}
+            style={{
+              background: "transparent",
+              border: "1px solid rgba(232,184,109,0.3)",
+              color: "#8080b0", borderRadius: "50px",
+              padding: "6px 16px", fontSize: "12px",
+              cursor: "pointer", fontFamily: "'DM Sans','Segoe UI',sans-serif",
+              transition: "all .2s",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor="rgba(232,184,109,0.7)"; e.currentTarget.style.color="#e8b86d"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor="rgba(232,184,109,0.3)"; e.currentTarget.style.color="#8080b0"; }}>
+            💬 Lämna feedback
+          </button>
+        </div>
       </div>
 
       <div style={{ maxWidth: "720px", margin: "0 auto", padding: "24px 18px 80px" }}>
@@ -315,43 +558,29 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
           </div>
         )}
 
-        {/* ── LADDNING ── */}
+        {/* LADDNING */}
         {laddning && (
           <div style={{ textAlign: "center", padding: "60px 20px" }} className="fade-up">
             <div className="spinner" style={{ margin: "0 auto 28px" }} />
-            
-            {/* Ikon */}
             <div style={{ fontSize: "2rem", marginBottom: "10px" }} className="laddnings-text">
               {LADDNINGS_STEG[laddningsSteg].ikon}
             </div>
-            
-            {/* Roterande meddelande */}
-            <p style={{ 
-              color: "#e8b86d", 
-              fontSize: "16px", 
-              fontWeight: 600, 
-              marginBottom: "8px",
-            }} className="laddnings-text" key={laddningsSteg}>
+            <p style={{ color: "#e8b86d", fontSize: "16px", fontWeight: 600, marginBottom: "8px" }}
+              className="laddnings-text" key={laddningsSteg}>
               {LADDNINGS_STEG[laddningsSteg].text}
             </p>
-            
             <p style={{ color: "#5050a0", fontSize: "13px", marginBottom: "24px" }}>
               Detta tar vanligtvis 20–30 sekunder
             </p>
-
-            {/* Progress-punkter */}
             <div style={{ display: "flex", gap: "6px", justifyContent: "center", marginBottom: "20px" }}>
               {LADDNINGS_STEG.map((_, i) => (
                 <div key={i} style={{
-                  width: i === laddningsSteg ? "20px" : "6px",
-                  height: "6px",
-                  borderRadius: "3px",
+                  width: i === laddningsSteg ? "20px" : "6px", height: "6px", borderRadius: "3px",
                   background: i <= laddningsSteg ? "#e8b86d" : "rgba(255,255,255,0.1)",
                   transition: "all 0.4s ease",
                 }} />
               ))}
             </div>
-
             {valdaNivaer.length > 3 && (
               <p style={{ color: "#5050a0", fontSize: "12px" }}>
                 {valdaNivaer.length} nivåer valda – kan ta upp till 40 sekunder
@@ -360,7 +589,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
           </div>
         )}
 
-        {/* ── RESULTAT ── */}
+        {/* RESULTAT */}
         {resultat && !laddning && (
           <div ref={resultRef} className="fade-up">
             {resultat.fel ? (
@@ -387,6 +616,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                     <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                       <button className="knapp-copy" onClick={kopiera}>{copied ? "✅ Kopierat!" : "📋 Kopiera"}</button>
                       <button className="knapp-print" onClick={() => window.print()}>🖨️ Skriv ut</button>
+                      <button className="knapp-feedback" onClick={() => setFeedbackOpen(true)}>💬 Feedback</button>
                       <button className="knapp-prim" onClick={resetAllt}>Ny plan</button>
                     </div>
                   </div>
@@ -488,6 +718,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "22px", justifyContent: "center" }} className="no-print">
                   <button className="knapp-copy" onClick={kopiera}>{copied ? "✅ Kopierat!" : "📋 Kopiera text"}</button>
                   <button className="knapp-print" onClick={() => window.print()}>🖨️ Skriv ut</button>
+                  <button className="knapp-feedback" onClick={() => setFeedbackOpen(true)}>💬 Feedback</button>
                   <button className="knapp-sek" onClick={genereraLektionsplan}>✨ Generera nytt</button>
                   <button className="knapp-prim" onClick={resetAllt}>🔄 Ny plan</button>
                 </div>
@@ -496,7 +727,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
           </div>
         )}
 
-        {/* ── FORMULÄR ── */}
+        {/* FORMULÄR */}
         {!resultat && !laddning && (
           <div className="fade-up">
             {steg === 1 && (
