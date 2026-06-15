@@ -191,13 +191,12 @@ function ChattLage({ onBack }) {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/generate", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           system: CHATT_SYSTEM,
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
-          stream: false,
         }),
       });
       const data = await response.json();
