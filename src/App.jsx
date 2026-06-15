@@ -112,6 +112,136 @@ function exportText(resultat, sprakNamn, kursplan, stadiumText, omrade, lektions
   return t;
 }
 
+// ─── BYGG RESURSER ────────────────────────────────────────────────────────────
+function buildResurser(sprakNamn, omrade, sprakKod) {
+  const q = encodeURIComponent(omrade || "modersmål");
+  const qSprak = encodeURIComponent(sprakNamn);
+  const qFull = encodeURIComponent(`${omrade} ${sprakNamn}`);
+
+  // Välj YouTube-sökspråk baserat på kod
+  const ytQuery = encodeURIComponent(`${omrade} ${sprakNamn} children lesson`);
+
+  const resurser = [
+    {
+      kategori: "🎬 Film & video",
+      links: [
+        { label: `UR Play – "${omrade}"`, url: `https://urplay.se/search#query=${q}` },
+        { label: `YouTube – "${sprakNamn} ${omrade}"`, url: `https://www.youtube.com/results?search_query=${ytQuery}` },
+      ]
+    },
+    {
+      kategori: "🖼️ Bilder & visuellt stöd",
+      links: [
+        { label: `Google Bilder – "${omrade}"`, url: `https://www.google.com/search?tbm=isch&q=${qFull}` },
+        { label: `Wikimedia Commons – "${sprakNamn}"`, url: `https://commons.wikimedia.org/w/index.php?search=${qSprak}` },
+      ]
+    },
+    {
+      kategori: "📖 Modersmålsresurser",
+      links: [
+        { label: `Lexin – tvåspråkig ordbok`, url: `https://lexin.digisam.se/` },
+        { label: `Skolverket – modersmål Lgr22`, url: `https://www.skolverket.se/undervisning/grundskolan/lgr22/lgr22-kapitel-2-och-3/laroplanen-kapitel-2-och-3-for-grundskolan?url=-996270488%2Fcompulsorycw%2Fjsp%2Fsubject.htm%3FsubjectCode%3DGRGRMOD01%26tos%3Dgr` },
+        { label: `MUCF – material om ursprungsländer`, url: `https://www.mucf.se/` },
+      ]
+    },
+  ];
+
+  // Lägg till specifika resurser per ämnesområde
+  if (omrade?.includes("Läsa") || omrade?.includes("Litteratur")) {
+    resurser.push({
+      kategori: "📚 Böcker & läsmaterial",
+      links: [
+        { label: `Internationella biblioteket – ${sprakNamn}`, url: `https://www.interbib.se/` },
+        { label: `Barnens bibliotek – flerspråkigt`, url: `https://www.barnensbibliotek.se/` },
+        { label: `Google Books – ${sprakNamn}`, url: `https://books.google.com/books?q=${qSprak}+children` },
+      ]
+    });
+  }
+
+  if (omrade?.includes("Kultur") || omrade?.includes("samhälle")) {
+    resurser.push({
+      kategori: "🌍 Kultur & ursprungsland",
+      links: [
+        { label: `NE.se – ${sprakNamn}s kultur`, url: `https://www.ne.se/sok/?q=${qSprak}` },
+        { label: `Google – ${sprakNamn} kultur och traditioner`, url: `https://www.google.com/search?q=${encodeURIComponent(sprakNamn + " kultur traditioner barn")}` },
+        { label: `YouTube – dokumentär ${sprakNamn}`, url: `https://www.youtube.com/results?search_query=${encodeURIComponent(sprakNamn + " kultur dokumentär")}` },
+      ]
+    });
+  }
+
+  if (omrade?.includes("Tala") || omrade?.includes("lyssna")) {
+    resurser.push({
+      kategori: "🎵 Ljud & muntligt material",
+      links: [
+        { label: `Forvo – uttal på ${sprakNamn}`, url: `https://forvo.com/languages/${sprakKod || "ar"}/` },
+        { label: `YouTube – sånger på ${sprakNamn} barn`, url: `https://www.youtube.com/results?search_query=${encodeURIComponent(sprakNamn + " barnvisor sånger")}` },
+      ]
+    });
+  }
+
+  if (omrade?.includes("Skriva") || omrade?.includes("Ord") || omrade?.includes("grammatik")) {
+    resurser.push({
+      kategori: "✏️ Skrivning & grammatik",
+      links: [
+        { label: `Lexin – ${sprakNamn} ordbok`, url: `https://lexin.digisam.se/` },
+        { label: `Google Translate – ${sprakNamn}`, url: `https://translate.google.com/?sl=sv&tl=${sprakKod || "ar"}&op=translate` },
+        { label: `Glosbe – ${sprakNamn} ordbok`, url: `https://glosbe.com/sv/${sprakKod || "ar"}` },
+      ]
+    });
+  }
+
+  return resurser;
+}
+
+// ─── RESURSER-KORT ────────────────────────────────────────────────────────────
+function ResurserKort({ sprakNamn, omrade, sprakKod }) {
+  const [open, setOpen] = useState(false);
+  const resurser = buildResurser(sprakNamn, omrade, sprakKod);
+  const totalLinks = resurser.reduce((s, r) => s + r.links.length, 0);
+
+  return (
+    <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", marginBottom: "12px", overflow: "hidden" }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: ".85rem 1.1rem", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: ".55rem", fontWeight: 700, color: "#e8b86d", fontSize: ".85rem" }}>
+          🔍 Visa resurser
+          <span style={{ background: "rgba(232,184,109,0.15)", border: "1px solid rgba(232,184,109,0.3)", borderRadius: 50, padding: ".1rem .55rem", fontSize: ".7rem", color: "#e8b86d", fontWeight: 700 }}>
+            {totalLinks} länkar
+          </span>
+        </span>
+        <span style={{ color: "#e8b86d", fontSize: "1rem", transition: "transform .2s", transform: open ? "rotate(180deg)" : "rotate(0deg)", display: "inline-block" }}>▾</span>
+      </button>
+
+      {open && (
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: ".85rem 1.1rem" }}>
+          <p style={{ margin: "0 0 .9rem", fontSize: ".74rem", color: "#5050a0", fontStyle: "italic" }}>
+            Länkarna öppnas i ny flik. Kontrollera att materialet passar din elevgrupp.
+          </p>
+          {resurser.map((kategori, ki) => (
+            <div key={ki} style={{ marginBottom: ki < resurser.length - 1 ? ".9rem" : 0 }}>
+              <div style={{ fontSize: ".72rem", fontWeight: 700, color: "#e8b86d", marginBottom: ".4rem", textTransform: "uppercase", letterSpacing: ".6px" }}>
+                {kategori.kategori}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: ".3rem" }}>
+                {kategori.links.map((link, li) => (
+                  <a key={li} href={link.url} target="_blank" rel="noopener noreferrer"
+                    style={{ display: "flex", alignItems: "center", gap: ".45rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: "8px", padding: ".4rem .75rem", textDecoration: "none", color: "#b0b0d0", fontSize: ".78rem", transition: "all .15s" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "rgba(232,184,109,0.1)"; e.currentTarget.style.borderColor = "rgba(232,184,109,0.35)"; e.currentTarget.style.color = "#e8b86d"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.09)"; e.currentTarget.style.color = "#b0b0d0"; }}>
+                    <span style={{ color: "#e8b86d", fontSize: ".8rem", flexShrink: 0 }}>↗</span>
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── GLOBAL CSS ──────────────────────────────────────────────────────────────
 const globalCSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap');
@@ -168,12 +298,7 @@ const globalCSS = `
     .kort { background: white !important; border: 1px solid #ddd !important; color: black !important; }
     .exempel-box { background: #fffbe6 !important; border: 1px solid #ddd !important; }
     p, span, div { color: black !important; }
-    /* Chatt-utskrift */
     textarea, button, input { display: none !important; }
-    [style*="flex-direction: column"][style*="height: 100vh"] > div:first-child { display: none !important; }
-    [style*="flex-direction: column"][style*="height: 100vh"] > div:last-child { display: none !important; }
-    [style*="pre-wrap"] { white-space: pre-wrap !important; color: black !important; background: #f8f8f8 !important; border: 1px solid #ddd !important; border-radius: 8px !important; }
-    [style*="f0d090"] { background: #fff8e6 !important; color: #333 !important; border: 1px solid #ddd !important; }
   }
 `;
 
@@ -195,7 +320,6 @@ function ChattLage({ onBack }) {
     setMessages(newMessages);
     setInput("");
     setLoading(true);
-
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -217,8 +341,6 @@ function ChattLage({ onBack }) {
   return (
     <div style={{ height: "100vh", background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)", fontFamily: "'DM Sans', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column", color: "#e8e8f0" }}>
       <style>{globalCSS}</style>
-
-      {/* Header */}
       <div style={{ background: "linear-gradient(135deg, rgba(232,184,109,0.12), rgba(212,150,90,0.06))", borderBottom: "1px solid rgba(232,184,109,0.2)", padding: ".9rem 1.2rem", display: "flex", alignItems: "center", gap: ".8rem", flexShrink: 0, boxShadow: "0 2px 20px rgba(0,0,0,0.3)" }}>
         <button onClick={onBack} className="knapp-sek" style={{ padding: ".35rem .8rem", fontSize: ".78rem", flexShrink: 0 }}>← Hem</button>
         <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, #e8b86d, #d4965a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", flexShrink: 0 }}>📚</div>
@@ -226,23 +348,15 @@ function ChattLage({ onBack }) {
           <div style={{ color: "#e8b86d", fontWeight: 700, fontSize: ".95rem", fontFamily: "'Playfair Display', serif" }}>ModersmålsGuiden</div>
           <div style={{ color: "#6060a0", fontSize: ".68rem" }}>Chattläge · Lgr22 · Beskriv fritt vad du behöver</div>
         </div>
-        {messages.length > 0 && (
-          <button onClick={() => setMessages([])} className="knapp-sek" style={{ padding: ".3rem .75rem", fontSize: ".72rem", flexShrink: 0 }}>Rensa</button>
-        )}
-        {messages.some(m => m.role === "assistant") && (
-          <button onClick={() => window.print()} className="knapp-print" style={{ padding: ".3rem .75rem", fontSize: ".72rem", flexShrink: 0 }}>🖨️ Skriv ut / PDF</button>
-        )}
+        {messages.length > 0 && <button onClick={() => setMessages([])} className="knapp-sek" style={{ padding: ".3rem .75rem", fontSize: ".72rem", flexShrink: 0 }}>Rensa</button>}
+        {messages.some(m => m.role === "assistant") && <button onClick={() => window.print()} className="knapp-print" style={{ padding: ".3rem .75rem", fontSize: ".72rem", flexShrink: 0 }}>🖨️ Skriv ut</button>}
       </div>
-
-      {/* Meddelanden */}
       <div style={{ flex: 1, overflowY: "auto", padding: "1.2rem", maxWidth: 720, width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
         {messages.length === 0 && (
           <div className="fi" style={{ textAlign: "center", padding: "2rem .5rem" }}>
             <div style={{ width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg, rgba(232,184,109,0.2), rgba(212,150,90,0.1))", border: "1px solid rgba(232,184,109,0.25)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1rem", fontSize: "2rem" }}>📚</div>
             <h2 style={{ color: "#e8b86d", margin: "0 0 .5rem", fontFamily: "'Playfair Display', serif", fontSize: "1.35rem" }}>Hej! Vad behöver du idag?</h2>
-            <p style={{ color: "#7070a0", fontSize: ".85rem", lineHeight: 1.7, maxWidth: 380, margin: "0 auto 1.8rem" }}>
-              Beskriv fritt – jag skapar lektionsplaner, övningar och material på svenska och målspråket, anpassat till Lgr22.
-            </p>
+            <p style={{ color: "#7070a0", fontSize: ".85rem", lineHeight: 1.7, maxWidth: 380, margin: "0 auto 1.8rem" }}>Beskriv fritt – jag skapar lektionsplaner, övningar och material på svenska och målspråket, anpassat till Lgr22.</p>
             <div style={{ display: "grid", gap: ".5rem", textAlign: "left", maxWidth: 500, margin: "0 auto 1.5rem" }}>
               {CHATT_EXEMPEL.map((ex, i) => (
                 <button key={i} onClick={() => sendMessage(ex)}
@@ -259,13 +373,10 @@ function ChattLage({ onBack }) {
             </div>
           </div>
         )}
-
         {messages.map((msg, i) => (
           <div key={i} className="fi" style={{ marginBottom: "1.1rem", display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start" }}>
             {msg.role === "user" ? (
-              <div style={{ background: "linear-gradient(135deg, rgba(232,184,109,0.22), rgba(212,150,90,0.14))", border: "1px solid rgba(232,184,109,0.25)", color: "#f0d090", borderRadius: "18px 18px 4px 18px", padding: ".7rem 1.1rem", maxWidth: "82%", fontSize: ".86rem", lineHeight: 1.65 }}>
-                {msg.content}
-              </div>
+              <div style={{ background: "linear-gradient(135deg, rgba(232,184,109,0.22), rgba(212,150,90,0.14))", border: "1px solid rgba(232,184,109,0.25)", color: "#f0d090", borderRadius: "18px 18px 4px 18px", padding: ".7rem 1.1rem", maxWidth: "82%", fontSize: ".86rem", lineHeight: 1.65 }}>{msg.content}</div>
             ) : (
               <div style={{ width: "100%", maxWidth: "92%" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: ".45rem", marginBottom: ".35rem", justifyContent: "space-between" }}>
@@ -273,28 +384,21 @@ function ChattLage({ onBack }) {
                     <div style={{ width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #e8b86d, #d4965a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: ".7rem", flexShrink: 0 }}>📚</div>
                     <span style={{ color: "#e8b86d", fontSize: ".72rem", fontWeight: 700, letterSpacing: ".3px" }}>ModersmålsGuiden</span>
                   </div>
-                  {/* Kopiera-knapp per svar */}
-                  <button
-                    onClick={() => { navigator.clipboard.writeText(msg.content).then(() => { const btn = document.getElementById(`copy-${i}`); if (btn) { btn.textContent = "✅"; setTimeout(() => { btn.textContent = "📋"; }, 2000); } }); }}
+                  <button onClick={() => { navigator.clipboard.writeText(msg.content).then(() => { const btn = document.getElementById(`copy-${i}`); if (btn) { btn.textContent = "✅"; setTimeout(() => { btn.textContent = "📋"; }, 2000); } }); }}
                     id={`copy-${i}`}
                     style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", padding: "3px 8px", cursor: "pointer", fontSize: "12px", color: "#8080b0", fontFamily: "inherit", transition: "all .15s" }}
                     onMouseEnter={e => { e.currentTarget.style.background = "rgba(232,184,109,0.1)"; e.currentTarget.style.color = "#e8b86d"; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "#8080b0"; }}>
-                    📋
-                  </button>
+                    onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "#8080b0"; }}>📋</button>
                 </div>
-                <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px 18px 18px 18px", padding: ".9rem 1.1rem", fontSize: ".85rem", color: "#d0d0e8", lineHeight: 1.8, whiteSpace: "pre-wrap", boxShadow: "0 2px 12px rgba(0,0,0,0.2)" }}>
-                  {msg.content}
-                </div>
+                <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px 18px 18px 18px", padding: ".9rem 1.1rem", fontSize: ".85rem", color: "#d0d0e8", lineHeight: 1.8, whiteSpace: "pre-wrap", boxShadow: "0 2px 12px rgba(0,0,0,0.2)" }}>{msg.content}</div>
               </div>
             )}
           </div>
         ))}
-
         {loading && (
           <div style={{ display: "flex", alignItems: "flex-start", gap: ".5rem", marginBottom: "1rem" }}>
             <div style={{ width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #e8b86d, #d4965a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: ".7rem", flexShrink: 0, marginTop: 2 }}>📚</div>
-            <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px 18px 18px 18px", padding: ".75rem 1rem", boxShadow: "0 2px 12px rgba(0,0,0,0.2)" }}>
+            <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px 18px 18px 18px", padding: ".75rem 1rem" }}>
               <div style={{ display: "flex", gap: ".35rem", alignItems: "center" }}>
                 {[0, .2, .4].map((d, i) => <div key={i} className="dot" style={{ animationDelay: `${d}s` }} />)}
                 <span style={{ fontSize: ".74rem", color: "#6060a0", marginLeft: ".35rem" }}>Skriver…</span>
@@ -304,22 +408,10 @@ function ChattLage({ onBack }) {
         )}
         <div ref={chatEndRef} />
       </div>
-
-      {/* Input */}
-      <div style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))", borderTop: "1px solid rgba(255,255,255,0.08)", padding: ".9rem 1.2rem", flexShrink: 0, boxShadow: "0 -2px 20px rgba(0,0,0,0.3)" }}>
+      <div style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))", borderTop: "1px solid rgba(255,255,255,0.08)", padding: ".9rem 1.2rem", flexShrink: 0 }}>
         <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", gap: ".6rem", alignItems: "flex-end" }}>
-          <textarea
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
-            placeholder="T.ex. 'Lektionsplan arabiska åk 6 om berättande' eller 'Övningar nybörjare somaliska'…"
-            rows={2}
-            style={{ flex: 1, resize: "none", lineHeight: 1.6, borderRadius: "12px", padding: "10px 14px" }}
-          />
-          <button onClick={() => sendMessage(input)} disabled={!input.trim() || loading}
-            style={{ background: !input.trim() || loading ? "rgba(232,184,109,0.15)" : "linear-gradient(135deg, #e8b86d, #d4965a)", color: !input.trim() || loading ? "#5050a0" : "#1a1a2e", border: "none", borderRadius: 12, padding: ".75rem 1.1rem", cursor: !input.trim() || loading ? "default" : "pointer", fontSize: "1.15rem", flexShrink: 0, fontFamily: "inherit", transition: "all .2s", fontWeight: 700 }}>
-            ➤
-          </button>
+          <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }} placeholder="T.ex. 'Lektionsplan arabiska åk 6 om berättande' eller 'Övningar nybörjare somaliska'…" rows={2} style={{ flex: 1, resize: "none", lineHeight: 1.6, borderRadius: "12px", padding: "10px 14px" }} />
+          <button onClick={() => sendMessage(input)} disabled={!input.trim() || loading} style={{ background: !input.trim() || loading ? "rgba(232,184,109,0.15)" : "linear-gradient(135deg, #e8b86d, #d4965a)", color: !input.trim() || loading ? "#5050a0" : "#1a1a2e", border: "none", borderRadius: 12, padding: ".75rem 1.1rem", cursor: !input.trim() || loading ? "default" : "pointer", fontSize: "1.15rem", flexShrink: 0, fontFamily: "inherit", fontWeight: 700 }}>➤</button>
         </div>
         <p style={{ textAlign: "center", color: "#303055", fontSize: ".65rem", margin: ".4rem 0 0" }}>Enter för att skicka · Shift+Enter för ny rad</p>
       </div>
@@ -352,31 +444,16 @@ function GuidatLage({ onBack }) {
     return s.namn.toLowerCase().includes(t) || s.kod.toLowerCase().startsWith(t) || s.sokord?.some(k => k.startsWith(t));
   });
 
-  function toggleNiva(niva) {
-    setValdaNivaer(prev => prev.includes(niva) ? prev.filter(n => n !== niva) : [...prev, niva]);
-  }
-
-  function toggleStadium(s) {
-    setValdaStadier(prev => prev.find(x => x.namn === s.namn) ? prev.filter(x => x.namn !== s.namn) : [...prev, s]);
-  }
+  function toggleNiva(niva) { setValdaNivaer(prev => prev.includes(niva) ? prev.filter(n => n !== niva) : [...prev, niva]); }
+  function toggleStadium(s) { setValdaStadier(prev => prev.find(x => x.namn === s.namn) ? prev.filter(x => x.namn !== s.namn) : [...prev, s]); }
 
   const sprakNamn = sprak?.kod === "other" ? annatSprak || "Annat språk" : sprak?.namn;
   const stadiumText = valdaStadier.map(s => `${s.namn} (åk ${s.ar})`).join(" + ");
   const steg1Klar = sprak && (sprak.kod !== "other" || annatSprak) && kursplan;
 
   async function genereraLektionsplan() {
-    setLaddning(true);
-    setResultat(null);
-    setAktivNiva(null);
-    setSprakvisning("svenska");
-    setStreamText("");
-
-    const kursplanInfo = kursplan?.id === "modersmal"
-      ? "Modersmål (förstaspråk) – Lgr22 kursplan för modersmål"
-      : kursplan?.id === "minoritet"
-      ? "Nationellt minoritetsspråk – Lgr22 kursplan för modersmål som nationellt minoritetsspråk"
-      : "Modersmål för nyanlända – anpassad undervisning med fokus på grundläggande kommunikation";
-
+    setLaddning(true); setResultat(null); setAktivNiva(null); setSprakvisning("svenska"); setStreamText("");
+    const kursplanInfo = kursplan?.id === "modersmal" ? "Modersmål (förstaspråk) – Lgr22 kursplan för modersmål" : kursplan?.id === "minoritet" ? "Nationellt minoritetsspråk – Lgr22 kursplan för modersmål som nationellt minoritetsspråk" : "Modersmål för nyanlända – anpassad undervisning med fokus på grundläggande kommunikation";
     const prompt = `Du är modersmålslärare i Sverige. Skapa en KLAR lektionsplan – redo att använda direkt.
 
 Språk: ${sprakNamn} | Kursplan: ${kursplanInfo} | Stadium: ${stadiumText} | Område: ${omrade} | Tid: ${lektionstid}
@@ -409,84 +486,35 @@ Svara ENDAST med JSON (inga backticks):
 }`;
 
     try {
-      const resp = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }),
-      });
-
-      if (!resp.ok) {
-        const data = await resp.json().catch(() => ({ error: "Serverfel" }));
-        throw new Error(data.error || "Serverfel");
-      }
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = "";
-      let gotDone = false;
-
+      const resp = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }) });
+      if (!resp.ok) { const data = await resp.json().catch(() => ({ error: "Serverfel" })); throw new Error(data.error || "Serverfel"); }
+      const reader = resp.body.getReader(); const decoder = new TextDecoder(); let fullText = ""; let gotDone = false;
       while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        const { done, value } = await reader.read(); if (done) break;
         const chunk = decoder.decode(value, { stream: true });
         for (const line of chunk.split("\n")) {
           if (!line.startsWith("data: ")) continue;
           try {
             const parsed = JSON.parse(line.slice(6).trim());
             if (parsed.text) { fullText += parsed.text; setStreamText(fullText); }
-            if (parsed.done) {
-              gotDone = true;
-              const result = JSON.parse(fullText.replace(/```json|```/g, "").trim());
-              setResultat(result);
-              setStreamText("");
-              setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
-            }
+            if (parsed.done) { gotDone = true; const result = JSON.parse(fullText.replace(/```json|```/g, "").trim()); setResultat(result); setStreamText(""); setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100); }
           } catch { /* ignorera */ }
         }
       }
-
       if (!gotDone && fullText.length > 50) {
-        try {
-          let jsonStr = fullText.replace(/```json|```/g, "").trim();
-          if (!jsonStr.endsWith("}")) {
-            const last = jsonStr.lastIndexOf("}");
-            if (last > 0) jsonStr = jsonStr.slice(0, last + 1);
-          }
-          setResultat(JSON.parse(jsonStr));
-          setStreamText("");
-          setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
-        } catch {
-          setStreamText("");
-          setResultat({ fel: "Lektionsplanen blev för lång. Prova färre nivåer eller ett stadium." });
-        }
+        try { let jsonStr = fullText.replace(/```json|```/g, "").trim(); if (!jsonStr.endsWith("}")) { const last = jsonStr.lastIndexOf("}"); if (last > 0) jsonStr = jsonStr.slice(0, last + 1); } setResultat(JSON.parse(jsonStr)); setStreamText(""); setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100); }
+        catch { setStreamText(""); setResultat({ fel: "Lektionsplanen blev för lång. Prova färre nivåer eller ett stadium." }); }
       }
-    } catch (e) {
-      console.error("API error:", e);
-      setStreamText("");
-      setResultat({ fel: "Kunde inte generera lektionsplanen. Försök igen med färre nivåer." });
-    }
+    } catch (e) { console.error("API error:", e); setStreamText(""); setResultat({ fel: "Kunde inte generera lektionsplanen. Försök igen med färre nivåer." }); }
     setLaddning(false);
   }
 
-  function resetAllt() {
-    setSteg(1); setSprak(null); setAnnatSprak(""); setKursplan(null);
-    setValdaStadier([]); setOmrade(null); setValdaNivaer([]);
-    setResultat(null); setSokterm(""); setCopied(false);
-    setAktivNiva(null); setStreamText("");
-    window.scrollTo(0, 0);
-  }
-
-  function kopiera() {
-    if (!resultat) return;
-    navigator.clipboard.writeText(exportText(resultat, sprakNamn, kursplan, stadiumText, omrade, lektionstid))
-      .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2500); });
-  }
+  function resetAllt() { setSteg(1); setSprak(null); setAnnatSprak(""); setKursplan(null); setValdaStadier([]); setOmrade(null); setValdaNivaer([]); setResultat(null); setSokterm(""); setCopied(false); setAktivNiva(null); setStreamText(""); window.scrollTo(0, 0); }
+  function kopiera() { if (!resultat) return; navigator.clipboard.writeText(exportText(resultat, sprakNamn, kursplan, stadiumText, omrade, lektionstid)).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2500); }); }
 
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)", fontFamily: "'DM Sans', 'Segoe UI', sans-serif", color: "#e8e8f0" }}>
       <style>{globalCSS}</style>
-
-      {/* Header */}
       <div style={{ padding: "20px 24px 0", display: "flex", alignItems: "center", gap: "12px" }} className="no-print">
         <button onClick={onBack} className="knapp-sek" style={{ padding: ".3rem .8rem", fontSize: ".78rem" }}>← Hem</button>
         <div style={{ textAlign: "center", flex: 1 }}>
@@ -497,8 +525,6 @@ Svara ENDAST med JSON (inga backticks):
       </div>
 
       <div style={{ maxWidth: "720px", margin: "0 auto", padding: "20px 18px 80px" }}>
-
-        {/* Steg-indikator */}
         {!resultat && !laddning && (
           <div style={{ textAlign: "center", marginBottom: "24px" }} className="no-print">
             <div style={{ display: "flex", gap: "8px", justifyContent: "center", marginBottom: "8px" }}>
@@ -560,9 +586,7 @@ Svara ENDAST med JSON (inga backticks):
                     ))}
                   </div>
                   <div className="label">Lärandemål</div>
-                  <p style={{ fontSize: "15px", lineHeight: "1.75", color: "#d0d0e8" }}>
-                    {sprakvisning === "svenska" ? resultat.malSvenska : resultat.malMalsprak}
-                  </p>
+                  <p style={{ fontSize: "15px", lineHeight: "1.75", color: "#d0d0e8" }}>{sprakvisning === "svenska" ? resultat.malSvenska : resultat.malMalsprak}</p>
                 </div>
 
                 <div className="label" style={{ marginBottom: "10px" }}>Differentierade aktiviteter</div>
@@ -573,9 +597,7 @@ Svara ENDAST med JSON (inga backticks):
                       {n.niva}
                     </button>
                   ))}
-                  {aktivNiva !== null && (
-                    <button className="niva-tab" onClick={() => setAktivNiva(null)} style={{ background: "rgba(255,255,255,0.06)", color: "#6060a0", border: "2px solid rgba(255,255,255,0.08)" }}>Visa alla</button>
-                  )}
+                  {aktivNiva !== null && <button className="niva-tab" onClick={() => setAktivNiva(null)} style={{ background: "rgba(255,255,255,0.06)", color: "#6060a0", border: "2px solid rgba(255,255,255,0.08)" }}>Visa alla</button>}
                 </div>
 
                 {resultat.nivaer?.map((n, i) => (
@@ -608,6 +630,9 @@ Svara ENDAST med JSON (inga backticks):
                     </div>
                   )
                 ))}
+
+                {/* ── RESURSER-KORT ── */}
+                <ResurserKort sprakNamn={sprakNamn} omrade={omrade} sprakKod={sprak?.kod} />
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "4px" }}>
                   <div className="kort" style={{ padding: "16px" }}>
@@ -659,8 +684,6 @@ Svara ENDAST med JSON (inga backticks):
         {/* FORMULÄR */}
         {!resultat && !laddning && (
           <div className="fade-up">
-
-            {/* STEG 1 */}
             {steg === 1 && (
               <div className="kort" style={{ padding: "28px" }}>
                 <h2 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "4px" }}>Välj modersmål</h2>
@@ -678,7 +701,6 @@ Svara ENDAST med JSON (inga backticks):
                 </div>
                 {sprak?.kod === "other" && <input type="text" placeholder="Ange språkets namn…" value={annatSprak} onChange={e => setAnnatSprak(e.target.value)} style={{ marginBottom: "12px" }} />}
                 {sprak && <div style={{ marginBottom: "20px", padding: "10px 14px", background: "rgba(232,184,109,0.08)", borderRadius: "10px", fontSize: "13px", color: "#e8b86d" }}>✓ Valt språk: <strong>{sprakNamn}</strong></div>}
-
                 {sprak && (
                   <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "20px" }}>
                     <h3 style={{ fontSize: "15px", fontWeight: 600, marginBottom: "4px" }}>Vilken kursplan gäller?</h3>
@@ -703,7 +725,6 @@ Svara ENDAST med JSON (inga backticks):
               </div>
             )}
 
-            {/* STEG 2 */}
             {steg === 2 && (
               <div className="kort" style={{ padding: "28px" }}>
                 <h2 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "4px" }}>Stadium och ämnesområde</h2>
@@ -712,19 +733,14 @@ Svara ENDAST med JSON (inga backticks):
                   <div className="label" style={{ marginBottom: "9px" }}>Stadium – välj ett eller flera</div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "7px" }}>
                     {STADIER.map(s => (
-                      <div key={s.namn} className={`val-kort ${valdaStadier.find(x => x.namn === s.namn) ? "vald" : ""}`}
-                        onClick={() => toggleStadium(s)} style={{ flexDirection: "column", alignItems: "flex-start" }}>
+                      <div key={s.namn} className={`val-kort ${valdaStadier.find(x => x.namn === s.namn) ? "vald" : ""}`} onClick={() => toggleStadium(s)} style={{ flexDirection: "column", alignItems: "flex-start" }}>
                         <span style={{ fontWeight: 600, fontSize: "14px" }}>{s.namn}</span>
                         <span style={{ fontSize: "11px", color: "#6060a0" }}>Åk {s.ar}</span>
                         {valdaStadier.find(x => x.namn === s.namn) && <span style={{ color: "#e8b86d", fontSize: "11px", marginTop: "4px" }}>✓ Vald</span>}
                       </div>
                     ))}
                   </div>
-                  {valdaStadier.length > 1 && (
-                    <div style={{ marginTop: "10px", padding: "8px 12px", background: "rgba(232,184,109,0.08)", borderRadius: "8px", fontSize: "12px", color: "#e8b86d" }}>
-                      🎓 Blandad grupp: {stadiumText}
-                    </div>
-                  )}
+                  {valdaStadier.length > 1 && <div style={{ marginTop: "10px", padding: "8px 12px", background: "rgba(232,184,109,0.08)", borderRadius: "8px", fontSize: "12px", color: "#e8b86d" }}>🎓 Blandad grupp: {stadiumText}</div>}
                 </div>
                 <div style={{ marginBottom: "22px" }}>
                   <div className="label" style={{ marginBottom: "9px" }}>Ämnesområde (Lgr22)</div>
@@ -750,7 +766,6 @@ Svara ENDAST med JSON (inga backticks):
               </div>
             )}
 
-            {/* STEG 3 */}
             {steg === 3 && (
               <div className="kort" style={{ padding: "28px" }}>
                 <h2 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "4px" }}>Elevernas nivåer</h2>
@@ -775,20 +790,12 @@ Svara ENDAST med JSON (inga backticks):
               </div>
             )}
 
-            {/* STEG 4 */}
             {steg === 4 && (
               <div className="kort" style={{ padding: "28px" }}>
                 <h2 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "4px" }}>Redo att generera</h2>
                 <p style={{ color: "#6060a0", fontSize: "13px", marginBottom: "22px" }}>Kontrollera dina val.</p>
                 <div style={{ display: "grid", gap: "8px", marginBottom: "22px" }}>
-                  {[
-                    { label: "Modersmål", varde: sprakNamn, ikon: "🌍" },
-                    { label: "Kursplan", varde: kursplan?.titel, ikon: kursplan?.ikon },
-                    { label: "Stadium", varde: stadiumText, ikon: "🎓" },
-                    { label: "Ämnesområde", varde: omrade, ikon: "📖" },
-                    { label: "Lektionstid", varde: lektionstid, ikon: "⏱" },
-                    { label: "Elevnivåer", varde: valdaNivaer.join(", "), ikon: "📊" },
-                  ].map(({ label, varde, ikon }) => (
+                  {[{ label: "Modersmål", varde: sprakNamn, ikon: "🌍" }, { label: "Kursplan", varde: kursplan?.titel, ikon: kursplan?.ikon }, { label: "Stadium", varde: stadiumText, ikon: "🎓" }, { label: "Ämnesområde", varde: omrade, ikon: "📖" }, { label: "Lektionstid", varde: lektionstid, ikon: "⏱" }, { label: "Elevnivåer", varde: valdaNivaer.join(", "), ikon: "📊" }].map(({ label, varde, ikon }) => (
                     <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 14px", background: "rgba(255,255,255,0.04)", borderRadius: "10px", gap: "12px" }}>
                       <span style={{ fontSize: "13px", color: "#6060a0" }}>{ikon} {label}</span>
                       <span style={{ fontSize: "13px", fontWeight: 600, color: "#e8b86d", textAlign: "right" }}>{varde}</span>
@@ -796,9 +803,7 @@ Svara ENDAST med JSON (inga backticks):
                   ))}
                 </div>
                 <div style={{ background: "rgba(232,184,109,0.07)", border: "1px solid rgba(232,184,109,0.17)", borderRadius: "10px", padding: "13px", marginBottom: "22px" }}>
-                  <p style={{ fontSize: "13px", color: "#b09040", lineHeight: "1.6" }}>
-                    Planen genereras med <strong style={{ color: "#e8b86d" }}>konkreta exempel och fraser</strong> på svenska och {sprakNamn}.
-                  </p>
+                  <p style={{ fontSize: "13px", color: "#b09040", lineHeight: "1.6" }}>Planen genereras med <strong style={{ color: "#e8b86d" }}>konkreta exempel och fraser</strong> på svenska och {sprakNamn}.</p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <button className="knapp-sek" onClick={() => setSteg(3)}>← Tillbaka</button>
@@ -816,45 +821,34 @@ Svara ENDAST med JSON (inga backticks):
 // ─── STARTSIDA ────────────────────────────────────────────────────────────────
 export default function App() {
   const [mode, setMode] = useState(null);
-
   if (mode === "chatt") return <ChattLage onBack={() => { setMode(null); window.scrollTo(0, 0); }} />;
   if (mode === "guide") return <GuidatLage onBack={() => { setMode(null); window.scrollTo(0, 0); }} />;
-
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)", fontFamily: "'DM Sans', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem 1rem" }}>
       <style>{globalCSS}</style>
       <div className="fi" style={{ textAlign: "center", maxWidth: 480, width: "100%" }}>
         <div style={{ fontSize: "2.8rem", marginBottom: "8px" }}>📚</div>
-        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 6vw, 44px)", fontWeight: 700, background: "linear-gradient(135deg, #e8b86d, #f5d69a)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: "8px" }}>
-          ModersmålsGuiden
-        </h1>
+        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 6vw, 44px)", fontWeight: 700, background: "linear-gradient(135deg, #e8b86d, #f5d69a)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: "8px" }}>ModersmålsGuiden</h1>
         <p style={{ color: "#6060a0", fontSize: "14px", marginBottom: "8px" }}>Differentierad lektionsplanering för modersmålslärare · Lgr22</p>
-        <p style={{ color: "#e8b86d", fontSize: "13px", fontWeight: 600, background: "rgba(232,184,109,0.08)", border: "1px solid rgba(232,184,109,0.2)", borderRadius: "20px", padding: "5px 16px", display: "inline-block", marginBottom: "2rem" }}>
-          ✨ Skapa en färdig lektionsplan på under en minut
-        </p>
-
+        <p style={{ color: "#e8b86d", fontSize: "13px", fontWeight: 600, background: "rgba(232,184,109,0.08)", border: "1px solid rgba(232,184,109,0.2)", borderRadius: "20px", padding: "5px 16px", display: "inline-block", marginBottom: "2rem" }}>✨ Skapa en färdig lektionsplan på under en minut</p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
           <button onClick={() => setMode("guide")} style={{ background: "linear-gradient(135deg, rgba(232,184,109,0.15), rgba(212,150,90,0.08))", border: "1px solid rgba(232,184,109,0.25)", borderRadius: "16px", padding: "1.5rem .9rem", cursor: "pointer", fontFamily: "inherit", transition: "all .2s", textAlign: "left" }}
-            onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
-            onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}>
+            onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}>
             <div style={{ fontSize: "1.7rem", marginBottom: ".35rem" }}>📋</div>
             <div style={{ fontSize: ".95rem", fontWeight: 700, color: "#e8b86d", marginBottom: ".2rem" }}>Guidat läge</div>
             <div style={{ fontSize: ".72rem", color: "#8080b0" }}>Välj språk, kursplan, stadium och nivåer steg för steg</div>
           </button>
           <button onClick={() => setMode("chatt")} style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "16px", padding: "1.5rem .9rem", cursor: "pointer", fontFamily: "inherit", transition: "all .2s", textAlign: "left" }}
-            onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
-            onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}>
+            onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}>
             <div style={{ fontSize: "1.7rem", marginBottom: ".35rem" }}>💬</div>
             <div style={{ fontSize: ".95rem", fontWeight: 700, color: "#e8e8f0", marginBottom: ".2rem" }}>Chattläge</div>
             <div style={{ fontSize: ".72rem", color: "#8080b0" }}>Skriv fritt – få lektionsplan eller övning direkt</div>
           </button>
         </div>
-
         <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", padding: ".7rem 1rem", marginBottom: "1rem" }}>
           <p style={{ color: "#5050a0", fontSize: ".75rem", fontWeight: 600, marginBottom: ".2rem" }}>💬 Prova i chattläget:</p>
           <p style={{ color: "#6060a0", fontSize: ".73rem" }}>"Lektionsplan arabiska åk 5 om familj" · "Övningar somaliska nybörjare" · "Kurdiska högstadiet berättande texter"</p>
         </div>
-
         <p style={{ color: "#303060", fontSize: ".7rem" }}>av MD · modersmalsguiden.vercel.app</p>
       </div>
     </div>
