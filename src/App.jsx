@@ -123,6 +123,7 @@ export default function App() {
   const [sokterm, setSokterm] = useState("");
   const [copied, setCopied] = useState(false);
   const [aktivNiva, setAktivNiva] = useState(null);
+  const [streamText, setStreamText] = useState("");
   const resultRef = useRef(null);
 
   const filtrerade = SPRAK.filter(s => {
@@ -203,15 +204,49 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
           messages: [{ role: "user", content: prompt }],
         }),
       });
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data.error || "Serverfel");
-      const text = data.content?.map(b => b.text || "").join("") || "";
-      const clean = text.replace(/```json|```/g, "").trim();
-      const parsed = JSON.parse(clean);
-      setResultat(parsed);
-      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+
+      if (!resp.ok) {
+        const data = await resp.json();
+        throw new Error(data.error || "Serverfel");
+      }
+
+      // Läs streamen
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const data = line.slice(6).trim();
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.text) {
+              fullText += parsed.text;
+              setStreamText(fullText);
+            }
+            if (parsed.done) {
+              // Streamen klar – parsa JSON
+              const clean = fullText.replace(/```json|```/g, "").trim();
+              const result = JSON.parse(clean);
+              setResultat(result);
+              setStreamText("");
+              setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+            }
+          } catch {
+            // Ignorera ogiltiga rader
+          }
+        }
+      }
     } catch (e) {
       console.error("API error:", e);
+      setStreamText("");
       setResultat({ fel: "Kunde inte generera lektionsplanen. Försök igen." });
     }
     setLaddning(false);
@@ -229,6 +264,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
     setSokterm("");
     setCopied(false);
     setAktivNiva(null);
+    setStreamText("");
     window.scrollTo(0, 0);
   }
 
@@ -519,14 +555,47 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
 
         {/* ── LADDNING ── */}
         {laddning && (
-          <div style={{ textAlign: "center", padding: "70px 20px" }} className="fade-up">
-            <div className="spinner" style={{ margin: "0 auto 20px" }} />
-            <p style={{ color: "#7070b0", marginBottom: "10px", fontSize: "15px" }}>Genererar lektionsplan med exempel och fraser…</p>
-            <div style={{ display: "flex", gap: "6px", justifyContent: "center", marginBottom: "14px" }}>
-              {[0, 0.2, 0.4].map((d, i) => <div key={i} className="dot" style={{ animationDelay: `${d}s` }} />)}
+          <div style={{ padding: "40px 0" }} className="fade-up">
+            {/* Spinner + status */}
+            <div style={{ textAlign: "center", marginBottom: "24px" }}>
+              <div className="spinner" style={{ margin: "0 auto 16px" }} />
+              <p style={{ color: "#7070b0", fontSize: "15px", marginBottom: "8px" }}>
+                {streamText ? "Bygger lektionsplan…" : "Ansluter till AI…"}
+              </p>
+              <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
+                {[0, 0.2, 0.4].map((d, i) => <div key={i} className="dot" style={{ animationDelay: `${d}s` }} />)}
+              </div>
             </div>
-            {valdaNivaer.length > 3 && (
-              <p style={{ color: "#5050a0", fontSize: "13px" }}>{valdaNivaer.length} nivåer – kan ta upp till 40 sekunder</p>
+
+            {/* Live stream-förhandsvisning */}
+            {streamText && (
+              <div style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: "14px",
+                padding: "16px 20px",
+                maxHeight: "280px",
+                overflowY: "auto",
+              }}>
+                <div style={{ fontSize: "11px", color: "#5050a0", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "10px" }}>
+                  ✍️ Genererar…
+                </div>
+                <pre style={{
+                  fontSize: "12px",
+                  color: "#8080b0",
+                  lineHeight: "1.6",
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                  fontFamily: "inherit",
+                  margin: 0,
+                }}>{streamText}<span style={{ display: "inline-block", width: "8px", height: "14px", background: "#e8b86d", marginLeft: "2px", verticalAlign: "middle", borderRadius: "2px", animation: "pulse 0.8s ease infinite" }} /></pre>
+              </div>
+            )}
+
+            {valdaNivaer.length > 3 && !streamText && (
+              <p style={{ color: "#5050a0", fontSize: "13px", textAlign: "center", marginTop: "12px" }}>
+                {valdaNivaer.length} nivåer valda – kan ta upp till 40 sekunder
+              </p>
             )}
           </div>
         )}
