@@ -87,9 +87,10 @@ const NIVA_FARG = {
 
 const STEG_LABELS = ["Språk & kursplan", "Stadium", "Nivåer", "Generera"];
 
-function exportText(resultat, sprakNamn, kursplan, stadium, omrade, lektionstid) {
+function exportText(resultat, sprakNamn, kursplan, valdaStadier, omrade, lektionstid) {
+  const stadiumText = valdaStadier.map(s => `${s.namn} (åk ${s.ar})`).join(" + ");
   let t = `MODERSMÅLSGUIDEN – Lgr22\n${"=".repeat(40)}\n`;
-  t += `Språk: ${sprakNamn} | Kursplan: ${kursplan?.titel} | Stadium: ${stadium?.namn} | Område: ${omrade} | Tid: ${lektionstid}\n\n`;
+  t += `Språk: ${sprakNamn} | Kursplan: ${kursplan?.titel} | Stadium: ${stadiumText} | Område: ${omrade} | Tid: ${lektionstid}\n\n`;
   t += `TITEL\n${resultat.titel}\n${resultat.titelMalsprak}\n\n`;
   t += `LÄRANDEMÅL\n${resultat.malSvenska}\n\n`;
   t += `LGR22\n${resultat.lgr22}\n\n`;
@@ -113,7 +114,7 @@ export default function App() {
   const [sprak, setSprak] = useState(null);
   const [annatSprak, setAnnatSprak] = useState("");
   const [kursplan, setKursplan] = useState(null);
-  const [stadium, setStadium] = useState(null);
+  const [valdaStadier, setValdaStadier] = useState([]);
   const [omrade, setOmrade] = useState(null);
   const [valdaNivaer, setValdaNivaer] = useState([]);
   const [lektionstid, setLektionstid] = useState("45 min");
@@ -142,6 +143,16 @@ export default function App() {
     );
   }
 
+  function toggleStadium(s) {
+    setValdaStadier(prev =>
+      prev.find(x => x.namn === s.namn)
+        ? prev.filter(x => x.namn !== s.namn)
+        : [...prev, s]
+    );
+  }
+
+  const stadiumText = valdaStadier.map(s => `${s.namn} (åk ${s.ar})`).join(" + ");
+
   const sprakNamn = sprak?.kod === "other" ? annatSprak || "Annat språk" : sprak?.namn;
 
   async function genereraLektionsplan() {
@@ -160,7 +171,7 @@ export default function App() {
 
 Språk: ${sprakNamn}
 Kursplan: ${kursplanInfo}
-Stadium: ${stadium?.namn} (åk ${stadium?.ar})
+Stadium: ${stadiumText}
 Ämnesområde: ${omrade}
 Lektionstid: ${lektionstid}
 Elevnivåer: ${valdaNivaer.join(", ")}
@@ -257,7 +268,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
     setSprak(null);
     setAnnatSprak("");
     setKursplan(null);
-    setStadium(null);
+    setValdaStadier([]);
     setOmrade(null);
     setValdaNivaer([]);
     setResultat(null);
@@ -270,7 +281,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
 
   function kopiera() {
     if (!resultat) return;
-    navigator.clipboard.writeText(exportText(resultat, sprakNamn, kursplan, stadium, omrade, lektionstid))
+    navigator.clipboard.writeText(exportText(resultat, sprakNamn, kursplan, valdaStadier, omrade, lektionstid))
       .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2500); });
   }
 
@@ -416,7 +427,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                     </div>
                   </div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "16px" }}>
-                    {[sprakNamn, kursplan?.titel, stadium?.namn, omrade, lektionstid].map(tag => (
+                    {[sprakNamn, kursplan?.titel, stadiumText, omrade, lektionstid].map(tag => (
                       <span key={tag} className="chip">{tag}</span>
                     ))}
                   </div>
@@ -673,16 +684,24 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                 <h2 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "4px" }}>Stadium och ämnesområde</h2>
                 <p style={{ color: "#6060a0", fontSize: "13px", marginBottom: "20px" }}>Vilken grupp och vad ska ni arbeta med?</p>
                 <div style={{ marginBottom: "22px" }}>
-                  <div className="label" style={{ marginBottom: "9px" }}>Stadium</div>
+                  <div className="label" style={{ marginBottom: "9px" }}>Stadium – välj ett eller flera</div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "7px" }}>
                     {STADIER.map(s => (
-                      <div key={s.namn} className={`val-kort ${stadium?.namn === s.namn ? "vald" : ""}`}
-                        onClick={() => setStadium(s)} style={{ flexDirection: "column", alignItems: "flex-start" }}>
+                      <div key={s.namn} className={`val-kort ${valdaStadier.find(x => x.namn === s.namn) ? "vald" : ""}`}
+                        onClick={() => toggleStadium(s)} style={{ flexDirection: "column", alignItems: "flex-start" }}>
                         <span style={{ fontWeight: 600, fontSize: "14px" }}>{s.namn}</span>
                         <span style={{ fontSize: "11px", color: "#6060a0" }}>Åk {s.ar}</span>
+                        {valdaStadier.find(x => x.namn === s.namn) && (
+                          <span style={{ color: "#e8b86d", fontSize: "12px", marginTop: "4px" }}>✓ Vald</span>
+                        )}
                       </div>
                     ))}
                   </div>
+                  {valdaStadier.length > 1 && (
+                    <div style={{ marginTop: "10px", padding: "8px 12px", background: "rgba(232,184,109,0.08)", borderRadius: "8px", fontSize: "12px", color: "#e8b86d" }}>
+                      🎓 Blandad grupp: {stadiumText}
+                    </div>
+                  )}
                 </div>
                 <div style={{ marginBottom: "22px" }}>
                   <div className="label" style={{ marginBottom: "9px" }}>Ämnesområde (Lgr22)</div>
@@ -705,7 +724,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                 </div>
                 <div style={{ marginTop: "24px", display: "flex", justifyContent: "space-between" }}>
                   <button className="knapp-sek" onClick={() => setSteg(1)}>← Tillbaka</button>
-                  <button className="knapp-prim" disabled={!stadium || !omrade} onClick={() => setSteg(3)}>Fortsätt →</button>
+                  <button className="knapp-prim" disabled={valdaStadier.length === 0 || !omrade} onClick={() => setSteg(3)}>Fortsätt →</button>
                 </div>
               </div>
             )}
@@ -749,7 +768,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                   {[
                     { label: "Modersmål", varde: sprakNamn, ikon: "🌍" },
                     { label: "Kursplan", varde: kursplan?.titel, ikon: kursplan?.ikon },
-                    { label: "Stadium", varde: `${stadium?.namn} (åk ${stadium?.ar})`, ikon: "🎓" },
+                    { label: "Stadium", varde: stadiumText, ikon: "🎓" },
                     { label: "Ämnesområde", varde: omrade, ikon: "📖" },
                     { label: "Lektionstid", varde: lektionstid, ikon: "⏱" },
                     { label: "Elevnivåer", varde: valdaNivaer.join(", "), ikon: "📊" },
