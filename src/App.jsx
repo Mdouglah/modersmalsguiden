@@ -167,44 +167,35 @@ export default function App() {
       ? "Nationellt minoritetsspråk – Lgr22 kursplan för modersmål som nationellt minoritetsspråk"
       : "Modersmål för nyanlända – anpassad undervisning med fokus på grundläggande kommunikation";
 
-    const prompt = `Du är en erfaren modersmålslärare i Sverige. Skapa en KOMPLETT och KLAR lektionsplan – läraren ska kunna använda den direkt utan att behöva lägga till något.
+    const prompt = `Du är modersmålslärare i Sverige. Skapa en KLAR lektionsplan – redo att använda direkt.
 
-Språk: ${sprakNamn}
-Kursplan: ${kursplanInfo}
-Stadium: ${stadiumText}
-Ämnesområde: ${omrade}
-Lektionstid: ${lektionstid}
-Elevnivåer: ${valdaNivaer.join(", ")}
+Språk: ${sprakNamn} | Kursplan: ${kursplanInfo} | Stadium: ${stadiumText} | Område: ${omrade} | Tid: ${lektionstid}
+Nivåer: ${valdaNivaer.join(", ")}
 
-VIKTIGT: Varje nivå ska innehålla:
-- Konkreta exempelfraser och meningar på BÅDE svenska och ${sprakNamn}
-- En färdig exempeluppgift med exempeltext som läraren kan visa direkt
-- Specifika ord och fraser som hör till ämnet
-
-Svara ENDAST med JSON (inga backticks, inga förklaringar):
+Svara ENDAST med JSON (inga backticks):
 {
-  "titel": "Konkret lektionstitel på svenska",
+  "titel": "Lektionstitel på svenska",
   "titelMalsprak": "Titel på ${sprakNamn}",
-  "malSvenska": "Lärandemål på svenska (2 meningar, konkret och mätbart)",
+  "malSvenska": "Lärandemål (1-2 meningar)",
   "malMalsprak": "Lärandemål på ${sprakNamn}",
-  "lgr22": "Exakt citat eller nära parafras från Lgr22 kursplan för ${kursplanInfo}",
+  "lgr22": "Lgr22-koppling för modersmål (1 mening)",
   "nivaer": [
     ${valdaNivaer.map(n => `{
       "niva": "${n}",
-      "aktivitetSvenska": "Konkret aktivitetsbeskrivning för ${n}-nivå (2-3 meningar med exakt vad läraren gör)",
-      "aktivitetMalsprak": "Samma aktivitet på ${sprakNamn}",
-      "exempelfraser": ["Exempelfraser på svenska som används i aktiviteten", "Ytterligare en exempelfras"],
-      "exempelfraser_malsprak": ["Samma fraser på ${sprakNamn}", "Samma fras 2 på ${sprakNamn}"],
-      "uppgiftSvenska": "Exakt uppgiftsbeskrivning för ${n}-nivå",
-      "uppgiftMalsprak": "Samma uppgift på ${sprakNamn}",
-      "exempeluppgift": "Ett konkret exempel på ett färdigt elevarbete eller exempelsvar för denna nivå",
-      "stod": "Konkret lärarstöd och scaffolding för ${n}-nivå"
+      "aktivitetSvenska": "Aktivitet för ${n} (2 meningar, konkret)",
+      "aktivitetMalsprak": "Aktivitet på ${sprakNamn}",
+      "exempelfraser": ["Exempelfras 1 på svenska", "Exempelfras 2 på svenska"],
+      "exempelfraser_malsprak": ["Fras 1 på ${sprakNamn}", "Fras 2 på ${sprakNamn}"],
+      "uppgiftSvenska": "Konkret uppgift för ${n}",
+      "uppgiftMalsprak": "Uppgift på ${sprakNamn}",
+      "exempeluppgift": "Kort exempelsvar som läraren kan visa",
+      "stod": "Lärarstöd för ${n} (1 mening)"
     }`).join(",\n    ")}
   ],
-  "avslutning": "Konkret gemensam avslutning (vad gör alla elever?)",
+  "avslutning": "Gemensam avslutning (1 mening)",
   "avslutningMalsprak": "Avslutning på ${sprakNamn}",
-  "materialSvenska": "Exakt lista på material som behövs",
-  "bedomning": "Konkret formativ bedömningsidé kopplad till Lgr22"
+  "materialSvenska": "Material som behövs",
+  "bedomning": "Formativ bedömningsidé (1 mening)"
 }`;
 
     try {
@@ -217,7 +208,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
       });
 
       if (!resp.ok) {
-        const data = await resp.json();
+        const data = await resp.json().catch(() => ({ error: "Serverfel" }));
         throw new Error(data.error || "Serverfel");
       }
 
@@ -225,6 +216,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
       let fullText = "";
+      let gotDone = false;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -243,7 +235,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
               setStreamText(fullText);
             }
             if (parsed.done) {
-              // Streamen klar – parsa JSON
+              gotDone = true;
               const clean = fullText.replace(/```json|```/g, "").trim();
               const result = JSON.parse(clean);
               setResultat(result);
@@ -255,10 +247,32 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
           }
         }
       }
+
+      // Om streamen avslutades utan done-signal – försök parsa ändå
+      if (!gotDone && fullText.length > 50) {
+        try {
+          const clean = fullText.replace(/```json|```/g, "").trim();
+          // Försök laga trasig JSON genom att hitta sista kompletta objekt
+          let jsonStr = clean;
+          if (!jsonStr.endsWith("}")) {
+            const lastBrace = jsonStr.lastIndexOf("}");
+            if (lastBrace > 0) jsonStr = jsonStr.slice(0, lastBrace + 1);
+          }
+          const result = JSON.parse(jsonStr);
+          setResultat(result);
+          setStreamText("");
+          setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+        } catch {
+          // JSON kunde inte lagas – visa felmeddelande men stanna kvar på resultatsidan
+          setStreamText("");
+          setResultat({ fel: "Lektionsplanen blev för lång. Prova färre nivåer eller ett stadium." });
+        }
+      }
+
     } catch (e) {
       console.error("API error:", e);
       setStreamText("");
-      setResultat({ fel: "Kunde inte generera lektionsplanen. Försök igen." });
+      setResultat({ fel: "Kunde inte generera lektionsplanen. Försök igen med färre nivåer." });
     }
     setLaddning(false);
   }
