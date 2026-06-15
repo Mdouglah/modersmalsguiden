@@ -53,6 +53,30 @@ const OMRADEN = [
 const NIVAER = ["Nybörjare", "Grundnivå", "Mellannivå", "Avancerad", "Modersmålsnära"];
 const ANTAL_LEKTIONER = ["30 min", "45 min", "60 min"];
 
+const KURSPLANER = [
+  {
+    id: "modersmal",
+    titel: "Modersmål",
+    beskrivning: "Elever med språket som förstaspråk",
+    ikon: "📘",
+    farg: "#1565c0",
+  },
+  {
+    id: "minoritet",
+    titel: "Nationellt minoritetsspråk",
+    beskrivning: "Finska, samiska, romani, meänkieli eller jiddisch",
+    ikon: "📗",
+    farg: "#2e7d32",
+  },
+  {
+    id: "nyanland",
+    titel: "Modersmål för nyanlända",
+    beskrivning: "Elever nyanlända i Sverige med begränsad svenska",
+    ikon: "📙",
+    farg: "#e65100",
+  },
+];
+
 const NIVA_FARG = {
   "Nybörjare": "#2e7d32",
   "Grundnivå": "#1565c0",
@@ -61,11 +85,11 @@ const NIVA_FARG = {
   "Modersmålsnära": "#4a148c",
 };
 
-const STEG_LABELS = ["Språk", "Stadium", "Nivåer", "Generera"];
+const STEG_LABELS = ["Språk & kursplan", "Stadium", "Nivåer", "Generera"];
 
-function exportText(resultat, sprakNamn, stadium, omrade, lektionstid) {
+function exportText(resultat, sprakNamn, kursplan, stadium, omrade, lektionstid) {
   let t = `MODERSMÅLSGUIDEN – Lgr22\n${"=".repeat(40)}\n`;
-  t += `Språk: ${sprakNamn} | Stadium: ${stadium?.namn} | Område: ${omrade} | Tid: ${lektionstid}\n\n`;
+  t += `Språk: ${sprakNamn} | Kursplan: ${kursplan?.titel} | Stadium: ${stadium?.namn} | Område: ${omrade} | Tid: ${lektionstid}\n\n`;
   t += `TITEL\n${resultat.titel}\n${resultat.titelMalsprak}\n\n`;
   t += `LÄRANDEMÅL\n${resultat.malSvenska}\n\n`;
   t += `LGR22\n${resultat.lgr22}\n\n`;
@@ -73,7 +97,9 @@ function exportText(resultat, sprakNamn, stadium, omrade, lektionstid) {
   resultat.nivaer?.forEach(n => {
     t += `\n${n.niva.toUpperCase()}\n`;
     t += `Aktivitet: ${n.aktivitetSvenska}\n`;
+    if (n.exempelfraser?.length) t += `Exempelfraser: ${n.exempelfraser.join(" | ")}\n`;
     t += `Uppgift: ${n.uppgiftSvenska}\n`;
+    if (n.exempeluppgift) t += `Exempel: ${n.exempeluppgift}\n`;
     t += `Lärarstöd: ${n.stod}\n`;
   });
   t += `\nAVSLUTNING\n${resultat.avslutning}\n\n`;
@@ -86,6 +112,7 @@ export default function App() {
   const [steg, setSteg] = useState(1);
   const [sprak, setSprak] = useState(null);
   const [annatSprak, setAnnatSprak] = useState("");
+  const [kursplan, setKursplan] = useState(null);
   const [stadium, setStadium] = useState(null);
   const [omrade, setOmrade] = useState(null);
   const [valdaNivaer, setValdaNivaer] = useState([]);
@@ -98,7 +125,6 @@ export default function App() {
   const [aktivNiva, setAktivNiva] = useState(null);
   const resultRef = useRef(null);
 
-  // Smart filtrering – matchar namn, kod och sokord
   const filtrerade = SPRAK.filter(s => {
     const t = sokterm.toLowerCase().trim();
     if (!t) return true;
@@ -123,32 +149,50 @@ export default function App() {
     setAktivNiva(null);
     setSprakvisning("svenska");
 
-    const prompt = `Du är modersmålslärare. Skapa en kort differentierad lektionsplan på svenska.
+    const kursplanInfo = kursplan?.id === "modersmal"
+      ? "Modersmål (förstaspråk) – Lgr22 kursplan för modersmål"
+      : kursplan?.id === "minoritet"
+      ? "Nationellt minoritetsspråk – Lgr22 kursplan för modersmål som nationellt minoritetsspråk"
+      : "Modersmål för nyanlända – anpassad undervisning med fokus på grundläggande kommunikation";
 
-Språk: ${sprakNamn} | Stadium: ${stadium?.namn} (åk ${stadium?.ar}) | Område: ${omrade} | Tid: ${lektionstid}
-Nivåer: ${valdaNivaer.join(", ")}
+    const prompt = `Du är en erfaren modersmålslärare i Sverige. Skapa en KOMPLETT och KLAR lektionsplan – läraren ska kunna använda den direkt utan att behöva lägga till något.
+
+Språk: ${sprakNamn}
+Kursplan: ${kursplanInfo}
+Stadium: ${stadium?.namn} (åk ${stadium?.ar})
+Ämnesområde: ${omrade}
+Lektionstid: ${lektionstid}
+Elevnivåer: ${valdaNivaer.join(", ")}
+
+VIKTIGT: Varje nivå ska innehålla:
+- Konkreta exempelfraser och meningar på BÅDE svenska och ${sprakNamn}
+- En färdig exempeluppgift med exempeltext som läraren kan visa direkt
+- Specifika ord och fraser som hör till ämnet
 
 Svara ENDAST med JSON (inga backticks, inga förklaringar):
 {
-  "titel": "Kort lektionstitel på svenska",
+  "titel": "Konkret lektionstitel på svenska",
   "titelMalsprak": "Titel på ${sprakNamn}",
-  "malSvenska": "Lärandemål på svenska (1-2 meningar)",
-  "malMalsprak": "Lärandemål på ${sprakNamn} (1-2 meningar)",
-  "lgr22": "Relevant Lgr22-koppling för modersmål (1 mening)",
+  "malSvenska": "Lärandemål på svenska (2 meningar, konkret och mätbart)",
+  "malMalsprak": "Lärandemål på ${sprakNamn}",
+  "lgr22": "Exakt citat eller nära parafras från Lgr22 kursplan för ${kursplanInfo}",
   "nivaer": [
     ${valdaNivaer.map(n => `{
       "niva": "${n}",
-      "aktivitetSvenska": "Aktivitet för ${n}-nivå på svenska (2 meningar)",
-      "aktivitetMalsprak": "Samma aktivitet på ${sprakNamn} (2 meningar)",
-      "uppgiftSvenska": "En konkret uppgift för ${n}-nivå på svenska",
+      "aktivitetSvenska": "Konkret aktivitetsbeskrivning för ${n}-nivå (2-3 meningar med exakt vad läraren gör)",
+      "aktivitetMalsprak": "Samma aktivitet på ${sprakNamn}",
+      "exempelfraser": ["Exempelfraser på svenska som används i aktiviteten", "Ytterligare en exempelfras"],
+      "exempelfraser_malsprak": ["Samma fraser på ${sprakNamn}", "Samma fras 2 på ${sprakNamn}"],
+      "uppgiftSvenska": "Exakt uppgiftsbeskrivning för ${n}-nivå",
       "uppgiftMalsprak": "Samma uppgift på ${sprakNamn}",
-      "stod": "Lärarstöd för ${n}-nivå (1 mening)"
+      "exempeluppgift": "Ett konkret exempel på ett färdigt elevarbete eller exempelsvar för denna nivå",
+      "stod": "Konkret lärarstöd och scaffolding för ${n}-nivå"
     }`).join(",\n    ")}
   ],
-  "avslutning": "Gemensam avslutning på svenska (1 mening)",
-  "avslutningMalsprak": "Avslutning på ${sprakNamn} (1 mening)",
-  "materialSvenska": "Behövligt material (kort)",
-  "bedomning": "Formativ bedömningsidé kopplad till Lgr22 (1 mening)"
+  "avslutning": "Konkret gemensam avslutning (vad gör alla elever?)",
+  "avslutningMalsprak": "Avslutning på ${sprakNamn}",
+  "materialSvenska": "Exakt lista på material som behövs",
+  "bedomning": "Konkret formativ bedömningsidé kopplad till Lgr22"
 }`;
 
     try {
@@ -177,6 +221,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
     setSteg(1);
     setSprak(null);
     setAnnatSprak("");
+    setKursplan(null);
     setStadium(null);
     setOmrade(null);
     setValdaNivaer([]);
@@ -189,9 +234,11 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
 
   function kopiera() {
     if (!resultat) return;
-    navigator.clipboard.writeText(exportText(resultat, sprakNamn, stadium, omrade, lektionstid))
+    navigator.clipboard.writeText(exportText(resultat, sprakNamn, kursplan, stadium, omrade, lektionstid))
       .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2500); });
   }
+
+  const steg1Klar = sprak && (sprak.kod !== "other" || annatSprak) && kursplan;
 
   return (
     <div style={{
@@ -220,6 +267,9 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
         .val-kort { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.09); border-radius: 12px; padding: 13px 16px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
         .val-kort:hover { background: rgba(232,184,109,0.08); border-color: rgba(232,184,109,0.35); }
         .val-kort.vald { background: rgba(232,184,109,0.12); border-color: #e8b86d; }
+        .kursplan-kort { background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.09); border-radius: 14px; padding: 16px; cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-start; gap: 14px; }
+        .kursplan-kort:hover { background: rgba(232,184,109,0.07); border-color: rgba(232,184,109,0.3); }
+        .kursplan-kort.vald { background: rgba(232,184,109,0.1); border-color: #e8b86d; }
         .tid-knapp { border: 2px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 9px 18px; cursor: pointer; transition: all 0.2s; font-size: 14px; background: rgba(255,255,255,0.04); color: #e8e8f0; font-family: inherit; }
         .tid-knapp:hover { border-color: rgba(232,184,109,0.4); }
         .tid-knapp.vald { background: rgba(232,184,109,0.18); border-color: #e8b86d; color: #e8b86d; font-weight: 700; }
@@ -229,6 +279,8 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
         .tab-knapp:not(.aktiv):hover { background: rgba(255,255,255,0.12); color: #e8e8f0; }
         .niva-tab { border: none; border-radius: 50px; padding: 7px 16px; cursor: pointer; font-size: 13px; font-weight: 700; transition: all 0.2s; font-family: inherit; }
         .niva-sektion { border-radius: 14px; padding: 20px; border-left: 4px solid; background: rgba(255,255,255,0.04); margin-bottom: 12px; }
+        .fras-chip { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 5px 10px; font-size: 12px; color: #d0d0e8; display: inline-block; margin: 3px; font-style: italic; }
+        .exempel-box { background: rgba(232,184,109,0.07); border: 1px solid rgba(232,184,109,0.2); border-radius: 10px; padding: 12px 14px; margin-top: 10px; }
         input[type="text"] { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.13); border-radius: 10px; padding: 10px 14px; color: #e8e8f0; font-size: 14px; outline: none; width: 100%; font-family: inherit; }
         input[type="text"]::placeholder { color: #505080; }
         input[type="text"]:focus { border-color: rgba(232,184,109,0.5); background: rgba(255,255,255,0.09); }
@@ -240,11 +292,13 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
         .varning { background: rgba(232,184,109,0.07); border: 1px solid rgba(232,184,109,0.25); border-radius: 10px; padding: 11px 14px; margin-top: 12px; font-size: 13px; color: #e8b86d; line-height: 1.5; }
         .stat-box { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; text-align: center; }
         .chip { background: rgba(232,184,109,0.11); border: 1px solid rgba(232,184,109,0.22); border-radius: 6px; padding: 3px 10px; font-size: 12px; color: #e8b86d; display: inline-block; }
+        .label { font-size: 11px; color: #5050a0; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
         @media print {
           body { background: white !important; color: black !important; }
           .no-print { display: none !important; }
           .niva-sektion { border: 1px solid #ddd !important; background: #fafafa !important; color: black !important; break-inside: avoid; }
           .kort { background: white !important; border: 1px solid #ddd !important; color: black !important; }
+          .exempel-box { background: #fffbe6 !important; border: 1px solid #ddd !important; }
           p, span, div { color: black !important; }
         }
       `}</style>
@@ -265,18 +319,11 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
         <p style={{ color: "#6060a0", fontSize: "14px", marginBottom: "6px" }}>
           Differentierad lektionsplanering för modersmålslärare · Lgr22
         </p>
-        {/* TAGLINE */}
         {!resultat && !laddning && (
           <p style={{
-            color: "#e8b86d",
-            fontSize: "13px",
-            fontWeight: 600,
-            background: "rgba(232,184,109,0.08)",
-            border: "1px solid rgba(232,184,109,0.2)",
-            borderRadius: "20px",
-            padding: "5px 16px",
-            display: "inline-block",
-            marginTop: "4px",
+            color: "#e8b86d", fontSize: "13px", fontWeight: 600,
+            background: "rgba(232,184,109,0.08)", border: "1px solid rgba(232,184,109,0.2)",
+            borderRadius: "20px", padding: "5px 16px", display: "inline-block", marginTop: "4px",
           }}>
             ✨ Skapa en färdig lektionsplan på under en minut
           </p>
@@ -305,7 +352,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
             {resultat.fel ? (
               <div className="kort" style={{ padding: "36px", textAlign: "center" }}>
                 <div style={{ fontSize: "2rem", marginBottom: "12px" }}>😔</div>
-                <p style={{ color: "#ff6b6b", marginBottom: "16px", fontSize: "15px" }}>{resultat.fel}</p>
+                <p style={{ color: "#ff6b6b", marginBottom: "16px" }}>{resultat.fel}</p>
                 <button className="knapp-sek" onClick={() => setResultat(null)}>Försök igen</button>
               </div>
             ) : (
@@ -314,16 +361,15 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                 <div style={{
                   background: "linear-gradient(135deg, rgba(232,184,109,0.14), rgba(212,150,90,0.07))",
                   border: "1px solid rgba(232,184,109,0.22)",
-                  borderRadius: "18px",
-                  padding: "24px",
-                  marginBottom: "14px",
-                  position: "relative",
-                  overflow: "hidden",
+                  borderRadius: "18px", padding: "24px", marginBottom: "14px",
+                  position: "relative", overflow: "hidden",
                 }} className="no-print">
                   <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "rgba(232,184,109,0.06)" }} />
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px", marginBottom: "14px" }}>
                     <div>
-                      <div style={{ fontSize: "11px", color: "#8080b0", textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: "6px" }}>Lektionsplan · Lgr22</div>
+                      <div style={{ fontSize: "11px", color: "#8080b0", textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: "6px" }}>
+                        Lektionsplan · {kursplan?.titel} · Lgr22
+                      </div>
                       <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "20px", color: "#e8b86d", marginBottom: "4px" }}>{resultat.titel}</h2>
                       <p style={{ color: "#a0a0c0", fontSize: "13px" }}>{resultat.titelMalsprak}</p>
                     </div>
@@ -334,16 +380,12 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                     </div>
                   </div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "16px" }}>
-                    {[sprakNamn, stadium?.namn, omrade, lektionstid].map(tag => (
+                    {[sprakNamn, kursplan?.titel, stadium?.namn, omrade, lektionstid].map(tag => (
                       <span key={tag} className="chip">{tag}</span>
                     ))}
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}>
-                    {[
-                      ["Nivåer", valdaNivaer.length],
-                      ["Område", omrade?.split(" ")[0] + "…"],
-                      ["Tid", lektionstid],
-                    ].map(([lb, v]) => (
+                    {[["Nivåer", valdaNivaer.length], ["Kursplan", kursplan?.ikon], ["Tid", lektionstid]].map(([lb, v]) => (
                       <div key={lb} className="stat-box">
                         <div style={{ fontSize: "15px", fontWeight: 700, color: "#e8b86d" }}>{v}</div>
                         <div style={{ fontSize: "11px", color: "#5050a0" }}>{lb}</div>
@@ -354,7 +396,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
 
                 {/* Lgr22 */}
                 <div style={{ background: "rgba(21,101,192,0.09)", border: "1px solid rgba(21,101,192,0.22)", borderRadius: "12px", padding: "14px 18px", marginBottom: "14px" }}>
-                  <div style={{ fontSize: "11px", color: "#90caf9", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "5px" }}>📌 Lgr22-koppling</div>
+                  <div style={{ fontSize: "11px", color: "#90caf9", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "5px" }}>📌 Lgr22-koppling · {kursplan?.titel}</div>
                   <p style={{ fontSize: "13px", color: "#b0d4f8", lineHeight: "1.65", fontStyle: "italic" }}>{resultat.lgr22}</p>
                 </div>
 
@@ -367,16 +409,14 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                       </button>
                     ))}
                   </div>
-                  <div style={{ fontSize: "11px", color: "#6060a0", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>Lärandemål</div>
+                  <div className="label">Lärandemål</div>
                   <p style={{ fontSize: "15px", lineHeight: "1.75", color: "#d0d0e8" }}>
                     {sprakvisning === "svenska" ? resultat.malSvenska : resultat.malMalsprak}
                   </p>
                 </div>
 
                 {/* Nivå-tabs */}
-                <div style={{ fontSize: "11px", color: "#5050a0", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "10px" }}>
-                  Differentierade aktiviteter
-                </div>
+                <div className="label" style={{ marginBottom: "10px" }}>Differentierade aktiviteter</div>
                 <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "14px" }} className="no-print">
                   {resultat.nivaer?.map((n, i) => (
                     <button key={i} className="niva-tab"
@@ -402,19 +442,45 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                   (aktivNiva === null || aktivNiva === i) && (
                     <div key={i} className="niva-sektion fade-up" style={{ borderLeftColor: NIVA_FARG[n.niva] || "#888" }}>
                       <div style={{ fontWeight: 700, fontSize: "14px", color: NIVA_FARG[n.niva] || "#e8e8f0", marginBottom: "12px" }}>{n.niva}</div>
-                      <div style={{ marginBottom: "10px" }}>
-                        <div style={{ fontSize: "11px", color: "#5050a0", marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.8px" }}>Aktivitet</div>
+
+                      {/* Aktivitet */}
+                      <div style={{ marginBottom: "12px" }}>
+                        <div className="label">Aktivitet</div>
                         <p style={{ fontSize: "14px", lineHeight: "1.7", color: "#cccce8" }}>
                           {sprakvisning === "svenska" ? n.aktivitetSvenska : n.aktivitetMalsprak}
                         </p>
                       </div>
+
+                      {/* Exempelfraser */}
+                      {(n.exempelfraser?.length > 0 || n.exempelfraser_malsprak?.length > 0) && (
+                        <div style={{ marginBottom: "12px" }}>
+                          <div className="label">Exempelfraser</div>
+                          <div>
+                            {(sprakvisning === "svenska" ? n.exempelfraser : n.exempelfraser_malsprak)?.map((f, j) => (
+                              <span key={j} className="fras-chip">"{f}"</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Uppgift */}
                       <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: "8px", padding: "11px", marginBottom: "10px" }}>
-                        <div style={{ fontSize: "11px", color: "#5050a0", marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.8px" }}>Uppgift</div>
+                        <div className="label">Uppgift</div>
                         <p style={{ fontSize: "13px", color: "#b0b0d0", fontStyle: "italic", lineHeight: "1.65" }}>
                           {sprakvisning === "svenska" ? n.uppgiftSvenska : n.uppgiftMalsprak}
                         </p>
                       </div>
-                      <div style={{ fontSize: "12px", color: "#5050a0" }}>
+
+                      {/* Exempeluppgift */}
+                      {n.exempeluppgift && (
+                        <div className="exempel-box">
+                          <div style={{ fontSize: "11px", color: "#e8b86d", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "5px" }}>💡 Exempel att visa eleverna</div>
+                          <p style={{ fontSize: "13px", color: "#d0c080", lineHeight: "1.65" }}>{n.exempeluppgift}</p>
+                        </div>
+                      )}
+
+                      {/* Lärarstöd */}
+                      <div style={{ fontSize: "12px", color: "#5050a0", marginTop: "10px" }}>
                         <span style={{ color: "#6060a0" }}>Lärarstöd: </span>{n.stod}
                       </div>
                     </div>
@@ -424,22 +490,22 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                 {/* Avslutning + Material */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "4px" }}>
                   <div className="kort" style={{ padding: "16px" }}>
-                    <div style={{ fontSize: "11px", color: "#6060a0", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>Gemensam avslutning</div>
+                    <div className="label" style={{ marginBottom: "8px" }}>Gemensam avslutning</div>
                     <p style={{ fontSize: "13px", color: "#b8b8d8", lineHeight: "1.65" }}>
                       {sprakvisning === "svenska" ? resultat.avslutning : resultat.avslutningMalsprak}
                     </p>
                   </div>
                   <div className="kort" style={{ padding: "16px" }}>
-                    <div style={{ fontSize: "11px", color: "#6060a0", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>Material</div>
+                    <div className="label" style={{ marginBottom: "8px" }}>Material</div>
                     <p style={{ fontSize: "13px", color: "#b8b8d8", lineHeight: "1.65" }}>{resultat.materialSvenska}</p>
                   </div>
                 </div>
                 <div className="kort" style={{ padding: "16px", marginTop: "12px" }}>
-                  <div style={{ fontSize: "11px", color: "#6060a0", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>Bedömning · formativ</div>
+                  <div className="label" style={{ marginBottom: "8px" }}>Bedömning · formativ</div>
                   <p style={{ fontSize: "13px", color: "#b8b8d8", lineHeight: "1.65" }}>{resultat.bedomning}</p>
                 </div>
 
-                {/* Knappar nere */}
+                {/* Knappar */}
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "22px", justifyContent: "center" }} className="no-print">
                   <button className="knapp-copy" onClick={kopiera}>{copied ? "✅ Kopierat!" : "📋 Kopiera text"}</button>
                   <button className="knapp-print" onClick={() => window.print()}>🖨️ Skriv ut</button>
@@ -455,14 +521,12 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
         {laddning && (
           <div style={{ textAlign: "center", padding: "70px 20px" }} className="fade-up">
             <div className="spinner" style={{ margin: "0 auto 20px" }} />
-            <p style={{ color: "#7070b0", marginBottom: "10px", fontSize: "15px" }}>Genererar differentierad lektionsplan…</p>
+            <p style={{ color: "#7070b0", marginBottom: "10px", fontSize: "15px" }}>Genererar lektionsplan med exempel och fraser…</p>
             <div style={{ display: "flex", gap: "6px", justifyContent: "center", marginBottom: "14px" }}>
               {[0, 0.2, 0.4].map((d, i) => <div key={i} className="dot" style={{ animationDelay: `${d}s` }} />)}
             </div>
             {valdaNivaer.length > 3 && (
-              <p style={{ color: "#5050a0", fontSize: "13px" }}>
-                {valdaNivaer.length} nivåer valda – kan ta upp till 40 sekunder
-              </p>
+              <p style={{ color: "#5050a0", fontSize: "13px" }}>{valdaNivaer.length} nivåer – kan ta upp till 40 sekunder</p>
             )}
           </div>
         )}
@@ -471,7 +535,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
         {!resultat && !laddning && (
           <div className="fade-up">
 
-            {/* STEG 1 */}
+            {/* STEG 1: Språk + Kursplan */}
             {steg === 1 && (
               <div className="kort" style={{ padding: "28px" }}>
                 <h2 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "4px" }}>Välj modersmål</h2>
@@ -486,7 +550,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                 {sokterm && filtrerade.length === 0 && (
                   <p style={{ fontSize: "13px", color: "#6060a0", marginBottom: "10px" }}>Inget språk hittades – välj "Annat språk" längst ned.</p>
                 )}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "7px", maxHeight: "360px", overflowY: "auto", paddingRight: "4px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "7px", maxHeight: "320px", overflowY: "auto", paddingRight: "4px", marginBottom: "20px" }}>
                   {filtrerade.map(s => (
                     <div key={s.kod} className={`val-kort ${sprak?.kod === s.kod ? "vald" : ""}`} onClick={() => setSprak(s)}>
                       <span style={{ fontSize: "18px" }}>{s.flagga}</span>
@@ -496,15 +560,38 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                   ))}
                 </div>
                 {sprak?.kod === "other" && (
-                  <input type="text" placeholder="Ange språkets namn…" value={annatSprak} onChange={e => setAnnatSprak(e.target.value)} style={{ marginTop: "12px" }} />
+                  <input type="text" placeholder="Ange språkets namn…" value={annatSprak} onChange={e => setAnnatSprak(e.target.value)} style={{ marginBottom: "16px" }} />
                 )}
                 {sprak && (
-                  <div style={{ marginTop: "12px", padding: "10px 14px", background: "rgba(232,184,109,0.08)", borderRadius: "10px", fontSize: "13px", color: "#e8b86d" }}>
+                  <div style={{ marginBottom: "20px", padding: "10px 14px", background: "rgba(232,184,109,0.08)", borderRadius: "10px", fontSize: "13px", color: "#e8b86d" }}>
                     ✓ Valt språk: <strong>{sprakNamn}</strong>
                   </div>
                 )}
+
+                {/* Kursplansval */}
+                {sprak && (
+                  <>
+                    <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "20px", marginBottom: "14px" }}>
+                      <h3 style={{ fontSize: "15px", fontWeight: 600, marginBottom: "4px" }}>Vilken kursplan gäller?</h3>
+                      <p style={{ color: "#6060a0", fontSize: "13px", marginBottom: "14px" }}>Välj rätt kursplan – det påverkar Lgr22-koppling och lektionsinnehåll.</p>
+                      <div style={{ display: "grid", gap: "10px" }}>
+                        {KURSPLANER.map(k => (
+                          <div key={k.id} className={`kursplan-kort ${kursplan?.id === k.id ? "vald" : ""}`} onClick={() => setKursplan(k)}>
+                            <span style={{ fontSize: "22px", flexShrink: 0 }}>{k.ikon}</span>
+                            <div>
+                              <div style={{ fontWeight: 600, fontSize: "14px", color: kursplan?.id === k.id ? "#e8b86d" : "#e8e8f0", marginBottom: "3px" }}>{k.titel}</div>
+                              <div style={{ fontSize: "12px", color: "#6060a0" }}>{k.beskrivning}</div>
+                            </div>
+                            {kursplan?.id === k.id && <span style={{ marginLeft: "auto", color: "#e8b86d", fontSize: "16px" }}>✓</span>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+
                 <div style={{ marginTop: "22px", display: "flex", justifyContent: "flex-end" }}>
-                  <button className="knapp-prim" disabled={!sprak || (sprak.kod === "other" && !annatSprak)} onClick={() => setSteg(2)}>
+                  <button className="knapp-prim" disabled={!steg1Klar} onClick={() => setSteg(2)}>
                     Fortsätt →
                   </button>
                 </div>
@@ -517,7 +604,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                 <h2 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "4px" }}>Stadium och ämnesområde</h2>
                 <p style={{ color: "#6060a0", fontSize: "13px", marginBottom: "20px" }}>Vilken grupp och vad ska ni arbeta med?</p>
                 <div style={{ marginBottom: "22px" }}>
-                  <div style={{ fontSize: "11px", color: "#6060a0", marginBottom: "9px", textTransform: "uppercase", letterSpacing: "0.9px" }}>Stadium</div>
+                  <div className="label" style={{ marginBottom: "9px" }}>Stadium</div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "7px" }}>
                     {STADIER.map(s => (
                       <div key={s.namn} className={`val-kort ${stadium?.namn === s.namn ? "vald" : ""}`}
@@ -529,7 +616,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                   </div>
                 </div>
                 <div style={{ marginBottom: "22px" }}>
-                  <div style={{ fontSize: "11px", color: "#6060a0", marginBottom: "9px", textTransform: "uppercase", letterSpacing: "0.9px" }}>Ämnesområde (Lgr22)</div>
+                  <div className="label" style={{ marginBottom: "9px" }}>Ämnesområde (Lgr22)</div>
                   <div style={{ display: "grid", gap: "7px" }}>
                     {OMRADEN.map(o => (
                       <div key={o} className={`val-kort ${omrade === o ? "vald" : ""}`} onClick={() => setOmrade(o)}>
@@ -540,7 +627,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontSize: "11px", color: "#6060a0", marginBottom: "9px", textTransform: "uppercase", letterSpacing: "0.9px" }}>Lektionstid</div>
+                  <div className="label" style={{ marginBottom: "9px" }}>Lektionstid</div>
                   <div style={{ display: "flex", gap: "8px" }}>
                     {ANTAL_LEKTIONER.map(t => (
                       <button key={t} className={`tid-knapp ${lektionstid === t ? "vald" : ""}`} onClick={() => setLektionstid(t)}>{t}</button>
@@ -572,14 +659,10 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                   ))}
                 </div>
                 {valdaNivaer.length > 0 && (
-                  <p style={{ marginTop: "12px", fontSize: "12px", color: "#6060a0" }}>
-                    Valda: {valdaNivaer.join(", ")}
-                  </p>
+                  <p style={{ marginTop: "12px", fontSize: "12px", color: "#6060a0" }}>Valda: {valdaNivaer.join(", ")}</p>
                 )}
                 {valdaNivaer.length > 3 && (
-                  <div className="varning">
-                    ⚠️ Du har valt {valdaNivaer.length} nivåer – kan ta upp till 40–50 sekunder. Max 3 nivåer ger snabbare resultat.
-                  </div>
+                  <div className="varning">⚠️ Du har valt {valdaNivaer.length} nivåer – kan ta upp till 40–50 sekunder. Max 3 nivåer ger snabbare resultat.</div>
                 )}
                 <div style={{ marginTop: "24px", display: "flex", justifyContent: "space-between" }}>
                   <button className="knapp-sek" onClick={() => setSteg(2)}>← Tillbaka</button>
@@ -596,6 +679,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                 <div style={{ display: "grid", gap: "8px", marginBottom: "22px" }}>
                   {[
                     { label: "Modersmål", varde: sprakNamn, ikon: "🌍" },
+                    { label: "Kursplan", varde: kursplan?.titel, ikon: kursplan?.ikon },
                     { label: "Stadium", varde: `${stadium?.namn} (åk ${stadium?.ar})`, ikon: "🎓" },
                     { label: "Ämnesområde", varde: omrade, ikon: "📖" },
                     { label: "Lektionstid", varde: lektionstid, ikon: "⏱" },
@@ -609,7 +693,7 @@ Svara ENDAST med JSON (inga backticks, inga förklaringar):
                 </div>
                 <div style={{ background: "rgba(232,184,109,0.07)", border: "1px solid rgba(232,184,109,0.17)", borderRadius: "10px", padding: "13px", marginBottom: "22px" }}>
                   <p style={{ fontSize: "13px", color: "#b09040", lineHeight: "1.6" }}>
-                    Planen genereras på <strong style={{ color: "#e8b86d" }}>svenska</strong> och <strong style={{ color: "#e8b86d" }}>{sprakNamn}</strong> – redo att skriva ut.
+                    Planen genereras med <strong style={{ color: "#e8b86d" }}>konkreta exempel och färdiga fraser</strong> på svenska och {sprakNamn} – redo att använda direkt i klassrummet.
                   </p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
