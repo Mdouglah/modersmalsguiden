@@ -213,53 +213,57 @@ function ChattLage({ onBack }) {
       <style>{globalCSS}</style>
 
       {/* Header */}
-      <div style={{ background: "rgba(232,184,109,0.1)", borderBottom: "1px solid rgba(232,184,109,0.15)", padding: ".8rem 1rem", display: "flex", alignItems: "center", gap: ".65rem", flexShrink: 0 }}>
-        <button onClick={onBack} className="knapp-sek" style={{ padding: ".3rem .7rem", fontSize: ".78rem" }}>← Hem</button>
-        <span style={{ fontSize: "1.2rem" }}>💬</span>
-        <div>
-          <div style={{ color: "#e8b86d", fontWeight: 700, fontSize: ".9rem" }}>ModersmålsGuiden – Chattläge</div>
-          <div style={{ color: "#6060a0", fontSize: ".65rem" }}>Beskriv fritt vad du behöver – lektionsplan eller övning</div>
+      <div style={{ background: "linear-gradient(135deg, rgba(232,184,109,0.12), rgba(212,150,90,0.06))", borderBottom: "1px solid rgba(232,184,109,0.2)", padding: ".9rem 1.2rem", display: "flex", alignItems: "center", gap: ".8rem", flexShrink: 0, boxShadow: "0 2px 20px rgba(0,0,0,0.3)" }}>
+        <button onClick={onBack} className="knapp-sek" style={{ padding: ".35rem .8rem", fontSize: ".78rem", flexShrink: 0 }}>← Hem</button>
+        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, #e8b86d, #d4965a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", flexShrink: 0 }}>📚</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ color: "#e8b86d", fontWeight: 700, fontSize: ".95rem", fontFamily: "'Playfair Display', serif" }}>ModersmålsGuiden</div>
+          <div style={{ color: "#6060a0", fontSize: ".68rem" }}>Chattläge · Lgr22 · Beskriv fritt vad du behöver</div>
         </div>
         {messages.length > 0 && (
-          <button onClick={() => setMessages([])} className="knapp-sek" style={{ marginLeft: "auto", padding: ".3rem .7rem", fontSize: ".72rem" }}>Rensa</button>
+          <button onClick={() => setMessages([])} className="knapp-sek" style={{ padding: ".3rem .75rem", fontSize: ".72rem", flexShrink: 0 }}>Rensa</button>
         )}
       </div>
 
       {/* Meddelanden */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "1rem", maxWidth: 720, width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "1.2rem", maxWidth: 720, width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
         {messages.length === 0 && (
-          <div className="fi" style={{ textAlign: "center", padding: "1.5rem .5rem" }}>
-            <div style={{ fontSize: "2.5rem", marginBottom: ".6rem" }}>💬</div>
-            <h2 style={{ color: "#e8b86d", margin: "0 0 .3rem", fontFamily: "'Playfair Display', serif", fontSize: "1.2rem" }}>Hej! Vad behöver du idag?</h2>
-            <p style={{ color: "#6060a0", fontSize: ".85rem", marginBottom: "1.2rem", lineHeight: 1.6 }}>
-              Beskriv fritt – jag skapar lektionsplaner, övningar och material på svenska och målspråket.
+          <div className="fi" style={{ textAlign: "center", padding: "2rem .5rem" }}>
+            <div style={{ width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg, rgba(232,184,109,0.2), rgba(212,150,90,0.1))", border: "1px solid rgba(232,184,109,0.25)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1rem", fontSize: "2rem" }}>📚</div>
+            <h2 style={{ color: "#e8b86d", margin: "0 0 .5rem", fontFamily: "'Playfair Display', serif", fontSize: "1.35rem" }}>Hej! Vad behöver du idag?</h2>
+            <p style={{ color: "#7070a0", fontSize: ".85rem", lineHeight: 1.7, maxWidth: 380, margin: "0 auto 1.8rem" }}>
+              Beskriv fritt – jag skapar lektionsplaner, övningar och material på svenska och målspråket, anpassat till Lgr22.
             </p>
-            <div style={{ display: "grid", gap: ".45rem", textAlign: "left" }}>
+            <div style={{ display: "grid", gap: ".5rem", textAlign: "left", maxWidth: 500, margin: "0 auto 1.5rem" }}>
               {CHATT_EXEMPEL.map((ex, i) => (
                 <button key={i} onClick={() => sendMessage(ex)}
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: ".65rem .9rem", cursor: "pointer", fontFamily: "inherit", fontSize: ".82rem", color: "#d0d0e8", textAlign: "left", transition: "all .15s" }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(232,184,109,0.4)"}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"}>
-                  💬 {ex}
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 12, padding: ".7rem 1rem", cursor: "pointer", fontFamily: "inherit", fontSize: ".83rem", color: "#b0b0d0", textAlign: "left", transition: "all .2s", display: "flex", alignItems: "center", gap: ".7rem" }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(232,184,109,0.4)"; e.currentTarget.style.background = "rgba(232,184,109,0.07)"; e.currentTarget.style.color = "#e8b86d"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.09)"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = "#b0b0d0"; }}>
+                  <span style={{ fontSize: ".9rem", flexShrink: 0, opacity: .7 }}>💬</span>
+                  <span>{ex}</span>
                 </button>
               ))}
+            </div>
+            <div style={{ padding: ".75rem 1rem", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "10px", fontSize: ".74rem", color: "#404060", maxWidth: 500, margin: "0 auto" }}>
+              💡 Tips: Ange språk, stadium och tema – t.ex. "arabiska åk 5 om familjen"
             </div>
           </div>
         )}
 
         {messages.map((msg, i) => (
-          <div key={i} className="fi" style={{ marginBottom: "1rem", display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start" }}>
+          <div key={i} className="fi" style={{ marginBottom: "1.1rem", display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start" }}>
             {msg.role === "user" ? (
-              <div style={{ background: "linear-gradient(135deg, rgba(232,184,109,0.3), rgba(212,150,90,0.2))", border: "1px solid rgba(232,184,109,0.3)", color: "#f5d69a", borderRadius: "18px 18px 4px 18px", padding: ".65rem 1rem", maxWidth: "80%", fontSize: ".86rem", lineHeight: 1.6 }}>
+              <div style={{ background: "linear-gradient(135deg, rgba(232,184,109,0.22), rgba(212,150,90,0.14))", border: "1px solid rgba(232,184,109,0.25)", color: "#f0d090", borderRadius: "18px 18px 4px 18px", padding: ".7rem 1.1rem", maxWidth: "82%", fontSize: ".86rem", lineHeight: 1.65 }}>
                 {msg.content}
               </div>
             ) : (
-              <div style={{ width: "100%" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: ".4rem", marginBottom: ".3rem" }}>
-                  <span style={{ fontSize: ".8rem" }}>📚</span>
-                  <span style={{ color: "#e8b86d", fontSize: ".72rem", fontWeight: 700 }}>ModersmålsGuiden</span>
+              <div style={{ width: "100%", maxWidth: "92%" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: ".45rem", marginBottom: ".35rem" }}>
+                  <div style={{ width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #e8b86d, #d4965a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: ".7rem", flexShrink: 0 }}>📚</div>
+                  <span style={{ color: "#e8b86d", fontSize: ".72rem", fontWeight: 700, letterSpacing: ".3px" }}>ModersmålsGuiden</span>
                 </div>
-                <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px 18px 18px 18px", padding: ".8rem 1rem", fontSize: ".85rem", color: "#d0d0e8", lineHeight: 1.75, whiteSpace: "pre-wrap" }}>
+                <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px 18px 18px 18px", padding: ".9rem 1.1rem", fontSize: ".85rem", color: "#d0d0e8", lineHeight: 1.8, whiteSpace: "pre-wrap", boxShadow: "0 2px 12px rgba(0,0,0,0.2)" }}>
                   {msg.content}
                 </div>
               </div>
@@ -268,12 +272,12 @@ function ChattLage({ onBack }) {
         ))}
 
         {loading && (
-          <div style={{ display: "flex", alignItems: "flex-start", gap: ".4rem", marginBottom: "1rem" }}>
-            <span style={{ fontSize: ".8rem", marginTop: 2 }}>📚</span>
-            <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px 18px 18px 18px", padding: ".7rem .9rem" }}>
-              <div style={{ display: "flex", gap: ".3rem", alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: ".5rem", marginBottom: "1rem" }}>
+            <div style={{ width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #e8b86d, #d4965a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: ".7rem", flexShrink: 0, marginTop: 2 }}>📚</div>
+            <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px 18px 18px 18px", padding: ".75rem 1rem", boxShadow: "0 2px 12px rgba(0,0,0,0.2)" }}>
+              <div style={{ display: "flex", gap: ".35rem", alignItems: "center" }}>
                 {[0, .2, .4].map((d, i) => <div key={i} className="dot" style={{ animationDelay: `${d}s` }} />)}
-                <span style={{ fontSize: ".74rem", color: "#6060a0", marginLeft: ".3rem" }}>Skriver…</span>
+                <span style={{ fontSize: ".74rem", color: "#6060a0", marginLeft: ".35rem" }}>Skriver…</span>
               </div>
             </div>
           </div>
@@ -282,22 +286,22 @@ function ChattLage({ onBack }) {
       </div>
 
       {/* Input */}
-      <div style={{ background: "rgba(255,255,255,0.03)", borderTop: "1px solid rgba(255,255,255,0.08)", padding: ".8rem 1rem", flexShrink: 0 }}>
-        <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", gap: ".5rem", alignItems: "flex-end" }}>
+      <div style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))", borderTop: "1px solid rgba(255,255,255,0.08)", padding: ".9rem 1.2rem", flexShrink: 0, boxShadow: "0 -2px 20px rgba(0,0,0,0.3)" }}>
+        <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", gap: ".6rem", alignItems: "flex-end" }}>
           <textarea
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
-            placeholder="T.ex. 'Lektionsplan arabiska åk 6 om berättande' eller 'Övningar för nybörjare i somaliska'…"
+            placeholder="T.ex. 'Lektionsplan arabiska åk 6 om berättande' eller 'Övningar nybörjare somaliska'…"
             rows={2}
-            style={{ flex: 1, resize: "none", lineHeight: 1.5 }}
+            style={{ flex: 1, resize: "none", lineHeight: 1.6, borderRadius: "12px", padding: "10px 14px" }}
           />
           <button onClick={() => sendMessage(input)} disabled={!input.trim() || loading}
-            style={{ background: !input.trim() || loading ? "rgba(232,184,109,0.2)" : "linear-gradient(135deg, #e8b86d, #d4965a)", color: !input.trim() || loading ? "#6060a0" : "#1a1a2e", border: "none", borderRadius: 10, padding: ".7rem 1rem", cursor: !input.trim() || loading ? "default" : "pointer", fontSize: "1.1rem", flexShrink: 0, fontFamily: "inherit", transition: "all .15s" }}>
+            style={{ background: !input.trim() || loading ? "rgba(232,184,109,0.15)" : "linear-gradient(135deg, #e8b86d, #d4965a)", color: !input.trim() || loading ? "#5050a0" : "#1a1a2e", border: "none", borderRadius: 12, padding: ".75rem 1.1rem", cursor: !input.trim() || loading ? "default" : "pointer", fontSize: "1.15rem", flexShrink: 0, fontFamily: "inherit", transition: "all .2s", fontWeight: 700 }}>
             ➤
           </button>
         </div>
-        <p style={{ textAlign: "center", color: "#404060", fontSize: ".65rem", margin: ".3rem 0 0" }}>Enter för att skicka · Shift+Enter för ny rad</p>
+        <p style={{ textAlign: "center", color: "#303055", fontSize: ".65rem", margin: ".4rem 0 0" }}>Enter för att skicka · Shift+Enter för ny rad</p>
       </div>
     </div>
   );
