@@ -168,6 +168,12 @@ const globalCSS = `
     .kort { background: white !important; border: 1px solid #ddd !important; color: black !important; }
     .exempel-box { background: #fffbe6 !important; border: 1px solid #ddd !important; }
     p, span, div { color: black !important; }
+    /* Chatt-utskrift */
+    textarea, button, input { display: none !important; }
+    [style*="flex-direction: column"][style*="height: 100vh"] > div:first-child { display: none !important; }
+    [style*="flex-direction: column"][style*="height: 100vh"] > div:last-child { display: none !important; }
+    [style*="pre-wrap"] { white-space: pre-wrap !important; color: black !important; background: #f8f8f8 !important; border: 1px solid #ddd !important; border-radius: 8px !important; }
+    [style*="f0d090"] { background: #fff8e6 !important; color: #333 !important; border: 1px solid #ddd !important; }
   }
 `;
 
@@ -223,6 +229,9 @@ function ChattLage({ onBack }) {
         {messages.length > 0 && (
           <button onClick={() => setMessages([])} className="knapp-sek" style={{ padding: ".3rem .75rem", fontSize: ".72rem", flexShrink: 0 }}>Rensa</button>
         )}
+        {messages.some(m => m.role === "assistant") && (
+          <button onClick={() => window.print()} className="knapp-print" style={{ padding: ".3rem .75rem", fontSize: ".72rem", flexShrink: 0 }}>🖨️ Skriv ut / PDF</button>
+        )}
       </div>
 
       {/* Meddelanden */}
@@ -259,9 +268,20 @@ function ChattLage({ onBack }) {
               </div>
             ) : (
               <div style={{ width: "100%", maxWidth: "92%" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: ".45rem", marginBottom: ".35rem" }}>
-                  <div style={{ width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #e8b86d, #d4965a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: ".7rem", flexShrink: 0 }}>📚</div>
-                  <span style={{ color: "#e8b86d", fontSize: ".72rem", fontWeight: 700, letterSpacing: ".3px" }}>ModersmålsGuiden</span>
+                <div style={{ display: "flex", alignItems: "center", gap: ".45rem", marginBottom: ".35rem", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: ".45rem" }}>
+                    <div style={{ width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #e8b86d, #d4965a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: ".7rem", flexShrink: 0 }}>📚</div>
+                    <span style={{ color: "#e8b86d", fontSize: ".72rem", fontWeight: 700, letterSpacing: ".3px" }}>ModersmålsGuiden</span>
+                  </div>
+                  {/* Kopiera-knapp per svar */}
+                  <button
+                    onClick={() => { navigator.clipboard.writeText(msg.content).then(() => { const btn = document.getElementById(`copy-${i}`); if (btn) { btn.textContent = "✅"; setTimeout(() => { btn.textContent = "📋"; }, 2000); } }); }}
+                    id={`copy-${i}`}
+                    style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", padding: "3px 8px", cursor: "pointer", fontSize: "12px", color: "#8080b0", fontFamily: "inherit", transition: "all .15s" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "rgba(232,184,109,0.1)"; e.currentTarget.style.color = "#e8b86d"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "#8080b0"; }}>
+                    📋
+                  </button>
                 </div>
                 <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px 18px 18px 18px", padding: ".9rem 1.1rem", fontSize: ".85rem", color: "#d0d0e8", lineHeight: 1.8, whiteSpace: "pre-wrap", boxShadow: "0 2px 12px rgba(0,0,0,0.2)" }}>
                   {msg.content}
