@@ -79,20 +79,6 @@ const CHATT_EXEMPEL = [
   "Läsförståelse för tigrinya åk 3, blandad grupp",
 ];
 
-const CHATT_SYSTEM = `Du är en erfaren modersmålslärare och pedagogisk expert i Sverige med djup kunskap om Lgr22 kursplanen för modersmål.
-
-Du hjälper modersmålslärare att snabbt skapa differentierade lektionsplaner och övningar för alla modersmål som undervisas i svenska skolan.
-
-Du svarar alltid på svenska och skapar innehåll på BÅDE svenska och det efterfrågade modersmålet.
-
-Du känner till:
-- Lgr22 kursplan för modersmål, nationella minoritetsspråk och modersmål för nyanlända
-- Differentiering för blandade grupper med olika nivåer
-- Praktiska övningar och aktiviteter för modersmålsundervisning
-- Hur man skapar tvåspråkigt lektionsmaterial
-
-Håll svaren konkreta, praktiska och direkt användbara. Max 300 ord om inte läraren ber om mer.`;
-
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 function exportText(resultat, sprakNamn, kursplan, stadiumText, omrade, lektionstid) {
   let t = `MODERSMÅLSGUIDEN – Lgr22\n${"=".repeat(40)}\n`;
@@ -205,13 +191,13 @@ function ChattLage({ onBack }) {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        // Systeminstruktionen ligger på servern (api/chat.js)
         body: JSON.stringify({
-          system: CHATT_SYSTEM,
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
         }),
       });
       const data = await response.json();
-      const reply = data.content?.[0]?.text || "Något gick fel. Försök igen.";
+      const reply = data.content?.[0]?.text || data.error || "Något gick fel. Försök igen.";
       setMessages(prev => [...prev, { role: "assistant", content: reply }]);
     } catch {
       setMessages(prev => [...prev, { role: "assistant", content: "Kunde inte ansluta. Försök igen." }]);
@@ -378,53 +364,27 @@ function GuidatLage({ onBack }) {
     setSprakvisning("svenska");
     setStreamText("");
 
-    const kursplanInfo = kursplan?.id === "modersmal"
-      ? "Modersmål (förstaspråk) – Lgr22 kursplan för modersmål"
-      : kursplan?.id === "minoritet"
-      ? "Nationellt minoritetsspråk – Lgr22 kursplan för modersmål som nationellt minoritetsspråk"
-      : "Modersmål för nyanlända – anpassad undervisning med fokus på grundläggande kommunikation";
-
-    const prompt = `Du är modersmålslärare i Sverige. Skapa en KLAR lektionsplan – redo att använda direkt.
-
-Språk: ${sprakNamn} | Kursplan: ${kursplanInfo} | Stadium: ${stadiumText} | Område: ${omrade} | Tid: ${lektionstid}
-Nivåer: ${valdaNivaer.join(", ")}
-
-Svara ENDAST med JSON (inga backticks):
-{
-  "titel": "Lektionstitel på svenska",
-  "titelMalsprak": "Titel på ${sprakNamn}",
-  "malSvenska": "Lärandemål (1-2 meningar)",
-  "malMalsprak": "Lärandemål på ${sprakNamn}",
-  "lgr22": "Lgr22-koppling för modersmål (1 mening)",
-  "nivaer": [
-    ${valdaNivaer.map(n => `{
-      "niva": "${n}",
-      "aktivitetSvenska": "Aktivitet för ${n} (2 meningar, konkret)",
-      "aktivitetMalsprak": "Aktivitet på ${sprakNamn}",
-      "exempelfraser": ["Exempelfras 1 på svenska", "Exempelfras 2 på svenska"],
-      "exempelfraser_malsprak": ["Fras 1 på ${sprakNamn}", "Fras 2 på ${sprakNamn}"],
-      "uppgiftSvenska": "Konkret uppgift för ${n}",
-      "uppgiftMalsprak": "Uppgift på ${sprakNamn}",
-      "exempeluppgift": "Kort exempelsvar som läraren kan visa",
-      "stod": "Lärarstöd för ${n} (1 mening)"
-    }`).join(",\n    ")}
-  ],
-  "avslutning": "Gemensam avslutning (1 mening)",
-  "avslutningMalsprak": "Avslutning på ${sprakNamn}",
-  "materialSvenska": "Material som behövs",
-  "bedomning": "Formativ bedömningsidé (1 mening)"
-}`;
-
     try {
+      // Bara lärarens val skickas – frågan till AI:n byggs på servern (api/generate.js)
       const resp = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }),
+        body: JSON.stringify({
+          sprak: sprakNamn,
+          kursplan: kursplan?.id,
+          stadier: valdaStadier.map(s => s.namn),
+          omrade,
+          lektionstid,
+          nivaer: valdaNivaer,
+        }),
       });
 
       if (!resp.ok) {
-        const data = await resp.json().catch(() => ({ error: "Serverfel" }));
-        throw new Error(data.error || "Serverfel");
+        const data = await resp.json().catch(() => ({}));
+        setStreamText("");
+        setResultat({ fel: data.error || "Kunde inte generera lektionsplanen. Försök igen med färre nivåer." });
+        setLaddning(false);
+        return;
       }
 
       const reader = resp.body.getReader();
@@ -685,7 +645,7 @@ Svara ENDAST med JSON (inga backticks):
                     </div>
                   ))}
                 </div>
-                {sprak?.kod === "other" && <input type="text" placeholder="Ange språkets namn…" value={annatSprak} onChange={e => setAnnatSprak(e.target.value)} style={{ marginBottom: "12px" }} />}
+                {sprak?.kod === "other" && <input type="text" maxLength={40} placeholder="Ange språkets namn…" value={annatSprak} onChange={e => setAnnatSprak(e.target.value)} style={{ marginBottom: "12px" }} />}
                 {sprak && <div style={{ marginBottom: "20px", padding: "10px 14px", background: "rgba(232,184,109,0.08)", borderRadius: "10px", fontSize: "13px", color: "#e8b86d" }}>✓ Valt språk: <strong>{sprakNamn}</strong></div>}
 
                 {sprak && (
