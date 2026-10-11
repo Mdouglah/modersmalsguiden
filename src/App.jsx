@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import Markdown, { tillText } from "./Markdown.jsx";
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 const SPRAK = [
@@ -279,7 +280,7 @@ function ChattLage({ onBack }) {
                   </div>
                   {/* Kopiera-knapp per svar */}
                   <button
-                    onClick={() => { navigator.clipboard.writeText(msg.content).then(() => { const btn = document.getElementById(`copy-${i}`); if (btn) { btn.textContent = "✅"; setTimeout(() => { btn.textContent = "📋"; }, 2000); } }); }}
+                    onClick={() => { navigator.clipboard.writeText(tillText(msg.content)).then(() => { const btn = document.getElementById(`copy-${i}`); if (btn) { btn.textContent = "✅"; setTimeout(() => { btn.textContent = "📋"; }, 2000); } }); }}
                     id={`copy-${i}`}
                     style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", padding: "3px 8px", cursor: "pointer", fontSize: "12px", color: "#8080b0", fontFamily: "inherit", transition: "all .15s" }}
                     onMouseEnter={e => { e.currentTarget.style.background = "rgba(232,184,109,0.1)"; e.currentTarget.style.color = "#e8b86d"; }}
@@ -288,7 +289,7 @@ function ChattLage({ onBack }) {
                   </button>
                 </div>
                 <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px 18px 18px 18px", padding: ".9rem 1.1rem", fontSize: ".85rem", color: "#d0d0e8", lineHeight: 1.8, whiteSpace: "pre-wrap", boxShadow: "0 2px 12px rgba(0,0,0,0.2)" }}>
-                  {msg.content}
+                  <Markdown text={msg.content} />
                 </div>
               </div>
             )}
