@@ -114,7 +114,11 @@ function exportText(resultat, sprakNamn, kursplan, stadiumText, omrade, lektions
 
 // ─── GLOBAL CSS ──────────────────────────────────────────────────────────────
 const globalCSS = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap');
+  @font-face { font-family: "DM Sans"; font-style: normal; font-weight: 400; font-display: swap; src: url("/fonts/dm-sans-latin-400-normal.woff2") format("woff2"); }
+  @font-face { font-family: "DM Sans"; font-style: normal; font-weight: 500; font-display: swap; src: url("/fonts/dm-sans-latin-500-normal.woff2") format("woff2"); }
+  @font-face { font-family: "DM Sans"; font-style: normal; font-weight: 600; font-display: swap; src: url("/fonts/dm-sans-latin-600-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Newsreader"; font-style: normal; font-weight: 400; font-display: swap; src: url("/fonts/newsreader-latin-400-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Newsreader"; font-style: italic; font-weight: 400; font-display: swap; src: url("/fonts/newsreader-latin-400-italic.woff2") format("woff2"); }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -223,7 +227,7 @@ function ChattLage({ onBack }) {
         <button onClick={onBack} className="knapp-sek" style={{ padding: ".35rem .8rem", fontSize: ".78rem", flexShrink: 0 }}>← Hem</button>
         <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, #e8b86d, #d4965a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", flexShrink: 0 }}>📚</div>
         <div style={{ flex: 1 }}>
-          <div style={{ color: "#e8b86d", fontWeight: 700, fontSize: ".95rem", fontFamily: "'Playfair Display', serif" }}>ModersmålsGuiden</div>
+          <div style={{ color: "#e8b86d", fontWeight: 700, fontSize: ".95rem", fontFamily: "'Newsreader', serif" }}>ModersmålsGuiden</div>
           <div style={{ color: "#6060a0", fontSize: ".68rem" }}>Chattläge · Lgr22 · Beskriv fritt vad du behöver</div>
         </div>
         {messages.length > 0 && (
@@ -239,7 +243,7 @@ function ChattLage({ onBack }) {
         {messages.length === 0 && (
           <div className="fi" style={{ textAlign: "center", padding: "2rem .5rem" }}>
             <div style={{ width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg, rgba(232,184,109,0.2), rgba(212,150,90,0.1))", border: "1px solid rgba(232,184,109,0.25)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1rem", fontSize: "2rem" }}>📚</div>
-            <h2 style={{ color: "#e8b86d", margin: "0 0 .5rem", fontFamily: "'Playfair Display', serif", fontSize: "1.35rem" }}>Hej! Vad behöver du idag?</h2>
+            <h2 style={{ color: "#e8b86d", margin: "0 0 .5rem", fontFamily: "'Newsreader', serif", fontSize: "1.35rem" }}>Hej! Vad behöver du idag?</h2>
             <p style={{ color: "#7070a0", fontSize: ".85rem", lineHeight: 1.7, maxWidth: 380, margin: "0 auto 1.8rem" }}>
               Beskriv fritt – jag skapar lektionsplaner, övningar och material på svenska och målspråket, anpassat till Lgr22.
             </p>
@@ -321,6 +325,7 @@ function ChattLage({ onBack }) {
             ➤
           </button>
         </div>
+        <p style={{ textAlign: "center", color: "#e8b86d", fontSize: ".75rem", fontWeight: 600, margin: ".5rem 0 0" }}>Skriv inte in elevers namn eller andra personuppgifter.</p>
         <p style={{ textAlign: "center", color: "#303055", fontSize: ".65rem", margin: ".4rem 0 0" }}>Enter för att skicka · Shift+Enter för ny rad</p>
       </div>
     </div>
@@ -491,7 +496,7 @@ Svara ENDAST med JSON (inga backticks):
       <div style={{ padding: "20px 24px 0", display: "flex", alignItems: "center", gap: "12px" }} className="no-print">
         <button onClick={onBack} className="knapp-sek" style={{ padding: ".3rem .8rem", fontSize: ".78rem" }}>← Hem</button>
         <div style={{ textAlign: "center", flex: 1 }}>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(22px, 4vw, 36px)", fontWeight: 700, background: "linear-gradient(135deg, #e8b86d, #f5d69a)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>ModersmålsGuiden</h1>
+          <h1 style={{ fontFamily: "'Newsreader', serif", fontSize: "clamp(22px, 4vw, 36px)", fontWeight: 700, background: "linear-gradient(135deg, #e8b86d, #f5d69a)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>ModersmålsGuiden</h1>
           <p style={{ color: "#6060a0", fontSize: "13px" }}>Guidat läge · Lgr22</p>
         </div>
         <div style={{ width: 80 }} />
@@ -526,7 +531,7 @@ Svara ENDAST med JSON (inga backticks):
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px", marginBottom: "14px" }}>
                     <div>
                       <div style={{ fontSize: "11px", color: "#8080b0", textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: "6px" }}>Lektionsplan · {kursplan?.titel} · Lgr22</div>
-                      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "20px", color: "#e8b86d", marginBottom: "4px" }}>{resultat.titel}</h2>
+                      <h2 style={{ fontFamily: "'Newsreader', serif", fontSize: "20px", color: "#e8b86d", marginBottom: "4px" }}>{resultat.titel}</h2>
                       <p style={{ color: "#a0a0c0", fontSize: "13px" }}>{resultat.titelMalsprak}</p>
                     </div>
                     <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
@@ -853,14 +858,14 @@ function FeedbackModal({ onClose }) {
         {skickat ? (
           <div style={{ textAlign:"center", padding:"1rem 0" }}>
             <div style={{ fontSize:"2.5rem", marginBottom:".5rem" }}>🎉</div>
-            <h2 style={{ color:"#e8b86d", margin:"0 0 .5rem", fontFamily:"'Playfair Display', serif" }}>Tack för din feedback!</h2>
+            <h2 style={{ color:"#e8b86d", margin:"0 0 .5rem", fontFamily:"'Newsreader', serif" }}>Tack för din feedback!</h2>
             <p style={{ color:"#8080b0", fontSize:".85rem", marginBottom:"1.2rem", lineHeight:1.6 }}>Din feedback hjälper mig att förbättra ModersmålsGuiden.</p>
             <button onClick={onClose} style={{ background:"linear-gradient(135deg,#e8b86d,#d4965a)", color:"#1a1a2e", border:"none", borderRadius:50, padding:".6rem 1.5rem", cursor:"pointer", fontFamily:"inherit", fontSize:".85rem", fontWeight:700 }}>Stäng</button>
           </div>
         ) : (
           <>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem" }}>
-              <h2 style={{ margin:0, color:"#e8b86d", fontSize:"1.1rem", fontFamily:"'Playfair Display', serif" }}>📝 Ge feedback</h2>
+              <h2 style={{ margin:0, color:"#e8b86d", fontSize:"1.1rem", fontFamily:"'Newsreader', serif" }}>📝 Ge feedback</h2>
               <button onClick={onClose} style={{ background:"none", border:"none", fontSize:"1.3rem", cursor:"pointer", color:"#6060a0" }}>✕</button>
             </div>
             <p style={{ color:"#6060a0", fontSize:".8rem", marginBottom:"1rem", lineHeight:1.6 }}>Din feedback skickas direkt till mig och hjälper mig förbättra appen.</p>
@@ -890,6 +895,7 @@ function FeedbackModal({ onClose }) {
                 <label style={{ fontSize:".78rem", color:"#e8b86d", fontWeight:600, display:"block", marginBottom:".3rem" }}>Kommentar</label>
                 <textarea placeholder="Vad fungerar bra? Vad kan förbättras?" value={form.kommentar} onChange={e=>setForm(f=>({...f,kommentar:e.target.value}))} rows={3}
                   style={{ width:"100%", background:"rgba(255,255,255,0.07)", border:"1px solid rgba(255,255,255,0.15)", borderRadius:8, padding:".5rem .75rem", color:"#e8e8f0", fontFamily:"inherit", fontSize:".85rem", outline:"none", resize:"vertical", boxSizing:"border-box" }}/>
+                <p style={{ fontSize:".75rem", color:"#e8b86d", margin:".3rem 0 0" }}>Skriv inga personuppgifter.</p>
               </div>
               <div style={{ display:"flex", gap:".5rem", justifyContent:"flex-end" }}>
                 <button type="button" onClick={onClose} style={{ background:"transparent", border:"1px solid rgba(255,255,255,0.2)", borderRadius:50, padding:".5rem 1.1rem", cursor:"pointer", fontFamily:"inherit", fontSize:".82rem", color:"#8080b0" }}>Avbryt</button>
@@ -918,7 +924,7 @@ export default function App() {
       <style>{globalCSS}</style>
       <div className="fi" style={{ textAlign: "center", maxWidth: 480, width: "100%" }}>
         <div style={{ fontSize: "2.8rem", marginBottom: "8px" }}>📚</div>
-        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 6vw, 44px)", fontWeight: 700, background: "linear-gradient(135deg, #e8b86d, #f5d69a)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: "8px" }}>
+        <h1 style={{ fontFamily: "'Newsreader', serif", fontSize: "clamp(28px, 6vw, 44px)", fontWeight: 700, background: "linear-gradient(135deg, #e8b86d, #f5d69a)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: "8px" }}>
           ModersmålsGuiden
         </h1>
         <p style={{ color: "#6060a0", fontSize: "14px", marginBottom: "8px" }}>Differentierad lektionsplanering för modersmålslärare · Lgr22</p>
