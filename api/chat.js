@@ -23,7 +23,7 @@ Håll svaren konkreta, praktiska och direkt användbara. Max 300 ord om inte lä
 // Gränser som hindrar att servern missbrukas
 const MAX_MESSAGES = 30;      // max antal meddelanden i en konversation
 const MAX_CHARS = 8000;       // max antal tecken per meddelande
-const MAX_TOTAL = 60000;      // max antal tecken i hela konversationen
+const MAX_TOTAL = 25000;      // max antal tecken i hela konversationen (svaren är på två språk)
 const MAX_TOKENS = 1500;      // tak för AI-svarets längd
 
 function tillatnaAdresser() {
