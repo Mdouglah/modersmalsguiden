@@ -161,8 +161,8 @@ const globalCSS = `
     p, span, div { color: black !important; }
     /* Chatt-utskrift */
     textarea, button, input { display: none !important; }
-    [style*="flex-direction: column"][style*="height: 100vh"] > div:first-child { display: none !important; }
-    [style*="flex-direction: column"][style*="height: 100vh"] > div:last-child { display: none !important; }
+    [style*="flex-direction: column"][style*="100vh"] > div:first-child { display: none !important; }
+    [style*="flex-direction: column"][style*="100vh"] > div:last-child { display: none !important; }
     [style*="pre-wrap"] { white-space: pre-wrap !important; color: black !important; background: #f8f8f8 !important; border: 1px solid #ddd !important; border-radius: 8px !important; }
     [style*="f0d090"] { background: #fff8e6 !important; color: #333 !important; border: 1px solid #ddd !important; }
   }
@@ -206,7 +206,7 @@ function ChattLage({ onBack }) {
   }
 
   return (
-    <div style={{ height: "100vh", background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)", fontFamily: "'DM Sans', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column", color: "#e8e8f0" }}>
+    <div style={{ height: "calc(100vh - 44px)", background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)", fontFamily: "'DM Sans', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column", color: "#e8e8f0" }}>
       <style>{globalCSS}</style>
 
       {/* Header */}
