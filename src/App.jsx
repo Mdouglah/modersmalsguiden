@@ -64,7 +64,7 @@ const KURSPLANER = [
 const NIVA_FARG = {
   "Nybörjare": "#2e7d32",
   "Grundnivå": "#1565c0",
-  "Mellannivå": "#e65100",
+  "Mellannivå": "#b84100", /* mörkare orange: kontrast 5,0 mot ljus botten */
   "Avancerad": "#880e4f",
   "Modersmålsnära": "#4a148c",
 };
