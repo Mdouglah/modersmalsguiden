@@ -6,41 +6,63 @@
     <meta name="description" content="ModersmålsGuiden – differentierad lektionsplanering för modersmålslärare i svenska skolan, kopplat till Lgr22." />
     <title>ModersmålsGuiden</title>
     <style>
-      /* ===== Appens färger (ändra här) – steg (a): samma värden som förut ===== */
+      /* ===== Norvay-tema (samma som kuratorn-allman/src/theme.css), kategori skola ===== */
       :root {
-        --mg-guld: #e8b86d; /* guld (accent) */
-        --mg-guld-mork: #d4965a; /* mörkt guld (toningar) */
-        --mg-guld-ljus: #f5d69a; /* ljust guld */
-        --mg-guld-text: #f0d090; /* guldtext i lärarens bubbla */
-        --mg-guld-2: #d0c080; /* guld 2 */
-        --mg-guld-3: #b09040; /* guld 3 */
-        --mg-orange: #e8a020; /* orange */
-        --mg-orange-mork: #c87010; /* mörkorange */
-        --mg-bg-1: #1a1a2e; /* bakgrund, mörkast */
-        --mg-bg-2: #16213e; /* bakgrund 2 */
-        --mg-bg-3: #0f3460; /* bakgrund 3 */
-        --mg-text: #e8e8f0; /* ljus text */
-        --mg-text-2: #d0d0e8; /* ljus text 2 */
-        --mg-text-3: #b8b8d8; /* ljus text 3 */
-        --mg-text-4: #b0b0d0; /* ljus text 4 */
-        --mg-text-5: #cccce8; /* ljus text 5 */
-        --mg-text-6: #a0a0c0; /* ljus text 6 */
-        --mg-dampad: #8080b0; /* dämpad */
-        --mg-dampad-2: #6060a0; /* dämpad 2 */
-        --mg-dampad-3: #5050a0; /* dämpad 3 */
-        --mg-dampad-4: #7070a0; /* dämpad 4 */
-        --mg-dampad-5: #7070b0; /* dämpad 5 */
-        --mg-dampad-6: #505080; /* dämpad 6 */
-        --mg-dampad-7: #404060; /* dämpad 7 */
-        --mg-dampad-8: #303055; /* dämpad 8 */
-        --mg-dampad-9: #303060; /* dämpad 9 */
-        --mg-bla: #1565c0; /* blå */
-        --mg-bla-mork: #0d47a1; /* mörkblå */
-        --mg-bla-ljus: #90caf9; /* ljusblå */
-        --mg-bla-ljus-2: #b0d4f8; /* ljusblå 2 */
-        --mg-lila: #6a1b9a; /* lila */
-        --mg-lila-mork: #4a148c; /* mörklila (utskriftsknapp) */
-        --mg-fel: #ff6b6b; /* felmeddelande */
+        --n-bg: #f5f3ec; --n-surface: #ffffff; --n-ink: #123f37; --n-ink-soft: #4f6b63; --n-line: rgba(18,63,55,0.14);
+        --n-terracotta: #c9785f; --n-accent: #2f6b5a; --n-tint: #d7e2d7;
+        --mg-guldaccent: #74562a;              /* mörkt guld för liten text (kontrast 4,9+) */
+        --mg-guldaccent-dekor: #b9915a;        /* ljust guld bara som dekor (ringar) */
+        --mg-guldaccent-yta: rgba(185,145,90,0.12);
+        --mg-guldaccent-kant: rgba(185,145,90,0.45);
+        --mg-avstangd-yta: #e3e7e1;             /* avstängd knapp */
+        --mg-avstangd-text: #4f6b63;            /* text på avstängd knapp (kontrast 4,6) */
+        --mg-rubrik-em: #a4533c;               /* mörkare terrakotta för stor rubrik (kontrast) */
+      }
+      body { margin: 0; background: #f5f3ec; }
+      /* Rubriker i Newsreader har vanlig vikt i Norvay-temat */
+      [style*="Newsreader"] { font-weight: 400 !important; }
+      /* Startsidans sidhuvud: layout "stack" med formen "circle" */
+      .mg-motif { position: relative; width: 120px; aspect-ratio: 1; margin: 0 auto 18px; display: grid; place-items: center; font-size: 2.6rem; isolation: isolate; }
+      .mg-motif::before { content: ""; position: absolute; inset: 10%; border-radius: 50%; background: var(--n-tint); z-index: -1; }
+      .mg-motif::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px dotted var(--mg-guldaccent-dekor); }
+      .mg-hero-title em { font-style: italic; color: var(--mg-rubrik-em); }
+      :focus-visible { outline: 3px solid var(--n-accent); outline-offset: 3px; }
+      @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+      /* ===== Appens färger (ändra här) – ljust Norvay-tema (skola) med guld som liten accent ===== */
+      :root {
+        --mg-guld: #2f6b5a; /* guld (accent) */
+        --mg-guld-mork: #24564a; /* mörkt guld (toningar) */
+        --mg-guld-ljus: #24564a; /* ljust guld */
+        --mg-guld-text: #123f37; /* guldtext i lärarens bubbla */
+        --mg-guld-2: #74562a; /* guld 2 */
+        --mg-guld-3: #74562a; /* guld 3 */
+        --mg-orange: #2f6b5a; /* feedbackknapp (förut orange) */
+        --mg-orange-mork: #24564a; /* feedbackknapp, toning (förut mörkorange) */
+        --mg-bg-1: #f5f3ec; /* bakgrund, mörkast */
+        --mg-bg-2: #f5f3ec; /* bakgrund 2 */
+        --mg-bg-3: #f5f3ec; /* bakgrund 3 */
+        --mg-text: #123f37; /* ljus text */
+        --mg-text-2: #123f37; /* ljus text 2 */
+        --mg-text-3: #2f4d46; /* ljus text 3 */
+        --mg-text-4: #2f4d46; /* ljus text 4 */
+        --mg-text-5: #2f4d46; /* ljus text 5 */
+        --mg-text-6: #4f6b63; /* ljus text 6 */
+        --mg-dampad: #4f6b63; /* dämpad */
+        --mg-dampad-2: #4f6b63; /* dämpad 2 */
+        --mg-dampad-3: #4f6b63; /* dämpad 3 */
+        --mg-dampad-4: #4f6b63; /* dämpad 4 */
+        --mg-dampad-5: #4f6b63; /* dämpad 5 */
+        --mg-dampad-6: #4f6b63; /* dämpad 6 */
+        --mg-dampad-7: #4f6b63; /* dämpad 7 */
+        --mg-dampad-8: #4f6b63; /* dämpad 8 */
+        --mg-dampad-9: #4f6b63; /* dämpad 9 */
+        --mg-bla: #2f6b5a; /* blå */
+        --mg-bla-mork: #24564a; /* mörkblå */
+        --mg-bla-ljus: #123f37; /* ljusblå */
+        --mg-bla-ljus-2: #2f4d46; /* ljusblå 2 */
+        --mg-lila: #2f6b5a; /* lila */
+        --mg-lila-mork: #24564a; /* mörklila (utskriftsknapp) */
+        --mg-fel: #b3261e; /* felmeddelande */
         --mg-print-linje: #ddd; /* utskrift: linje */
         --mg-print-yta: #fafafa; /* utskrift: yta */
         --mg-print-yta-2: #f8f8f8; /* utskrift: yta 2 */
@@ -49,51 +71,51 @@
         --mg-print-text: #333; /* utskrift: text */
         --mg-gra: #888; /* grå */
         --mg-gra-ljus: #ccc; /* ljusgrå */
-        --mg-bla-a09: rgba(21,101,192,0.09);
-        --mg-bla-a22: rgba(21,101,192,0.22);
-        --mg-bla-a40: rgba(21,101,192,.4);
-        --mg-guld-a06: rgba(232,184,109,0.06);
-        --mg-guld-a07: rgba(232,184,109,0.07);
-        --mg-guld-a08: rgba(232,184,109,0.08);
-        --mg-guld-a10: rgba(232,184,109,0.1);
-        --mg-guld-a11: rgba(232,184,109,0.11);
-        --mg-guld-a12: rgba(232,184,109,0.12);
-        --mg-guld-a14: rgba(232,184,109,0.14);
-        --mg-guld-a15: rgba(232,184,109,0.15);
-        --mg-guld-a17: rgba(232,184,109,0.17);
-        --mg-guld-a18: rgba(232,184,109,0.18);
-        --mg-guld-a20: rgba(232,184,109,0.2);
-        --mg-guld-a22: rgba(232,184,109,0.22);
-        --mg-guld-a25: rgba(232,184,109,0.25);
-        --mg-guld-a30: rgba(232,184,109,0.3);
-        --mg-guld-a35: rgba(232,184,109,0.35);
-        --mg-guld-a40: rgba(232,184,109,0.4);
-        --mg-guld-a45: rgba(232,184,109,0.45);
-        --mg-guld-a50: rgba(232,184,109,0.5);
-        --mg-guld-a60: rgba(232,184,109,0.6);
-        --mg-guldmork-a06: rgba(212,150,90,0.06);
-        --mg-guldmork-a07: rgba(212,150,90,0.07);
-        --mg-guldmork-a08: rgba(212,150,90,0.08);
-        --mg-guldmork-a10: rgba(212,150,90,0.1);
-        --mg-guldmork-a14: rgba(212,150,90,0.14);
-        --mg-lila-a40: rgba(106,27,154,.4);
-        --mg-svart-a20: rgba(0,0,0,0.2);
-        --mg-svart-a30: rgba(0,0,0,0.3);
-        --mg-svart-a50: rgba(0,0,0,0.5);
-        --mg-svart-a60: rgba(0,0,0,0.6);
-        --mg-vit-a02: rgba(255,255,255,0.02);
-        --mg-vit-a03: rgba(255,255,255,0.03);
-        --mg-vit-a04: rgba(255,255,255,0.04);
-        --mg-vit-a05: rgba(255,255,255,0.05);
-        --mg-vit-a06: rgba(255,255,255,0.06);
-        --mg-vit-a07: rgba(255,255,255,0.07);
-        --mg-vit-a08: rgba(255,255,255,0.08);
-        --mg-vit-a09: rgba(255,255,255,0.09);
-        --mg-vit-a10: rgba(255,255,255,0.1);
-        --mg-vit-a12: rgba(255,255,255,0.12);
-        --mg-vit-a13: rgba(255,255,255,0.13);
-        --mg-vit-a15: rgba(255,255,255,0.15);
-        --mg-vit-a20: rgba(255,255,255,0.2);
+        --mg-bla-a09: rgba(47,107,90,0.09);
+        --mg-bla-a22: rgba(47,107,90,0.22);
+        --mg-bla-a40: rgba(47,107,90,0.4);
+        --mg-guld-a06: rgba(47,107,90,0.06);
+        --mg-guld-a07: rgba(47,107,90,0.07);
+        --mg-guld-a08: rgba(47,107,90,0.08);
+        --mg-guld-a10: rgba(47,107,90,0.1);
+        --mg-guld-a11: rgba(47,107,90,0.11);
+        --mg-guld-a12: rgba(47,107,90,0.12);
+        --mg-guld-a14: rgba(47,107,90,0.14);
+        --mg-guld-a15: rgba(47,107,90,0.15);
+        --mg-guld-a17: rgba(47,107,90,0.17);
+        --mg-guld-a18: rgba(47,107,90,0.18);
+        --mg-guld-a20: rgba(47,107,90,0.2);
+        --mg-guld-a22: rgba(47,107,90,0.22);
+        --mg-guld-a25: rgba(47,107,90,0.25);
+        --mg-guld-a30: rgba(47,107,90,0.3);
+        --mg-guld-a35: rgba(47,107,90,0.35);
+        --mg-guld-a40: rgba(47,107,90,0.4);
+        --mg-guld-a45: rgba(47,107,90,0.45);
+        --mg-guld-a50: rgba(47,107,90,0.5);
+        --mg-guld-a60: rgba(47,107,90,0.6);
+        --mg-guldmork-a06: rgba(47,107,90,0.06);
+        --mg-guldmork-a07: rgba(47,107,90,0.07);
+        --mg-guldmork-a08: rgba(47,107,90,0.08);
+        --mg-guldmork-a10: rgba(47,107,90,0.1);
+        --mg-guldmork-a14: rgba(47,107,90,0.14);
+        --mg-lila-a40: rgba(18,63,55,0.12);
+        --mg-svart-a20: rgba(18,63,55,0.06);
+        --mg-svart-a30: rgba(18,63,55,0.08);
+        --mg-svart-a50: rgba(18,63,55,0.14);
+        --mg-svart-a60: rgba(18,63,55,0.45);
+        --mg-vit-a02: #ffffff;
+        --mg-vit-a03: #ffffff;
+        --mg-vit-a04: #ffffff;
+        --mg-vit-a05: #ffffff;
+        --mg-vit-a06: #ffffff;
+        --mg-vit-a07: #ffffff;
+        --mg-vit-a08: rgba(18,63,55,0.14);
+        --mg-vit-a09: rgba(18,63,55,0.14);
+        --mg-vit-a10: rgba(18,63,55,0.14);
+        --mg-vit-a12: rgba(18,63,55,0.14);
+        --mg-vit-a13: rgba(18,63,55,0.14);
+        --mg-vit-a15: rgba(18,63,55,0.18);
+        --mg-vit-a20: rgba(18,63,55,0.22);
       }
     </style>
   </head>

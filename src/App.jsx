@@ -861,7 +861,7 @@ function FeedbackModal({ onClose }) {
               <div style={{ display:"flex", gap:".5rem", justifyContent:"flex-end" }}>
                 <button type="button" onClick={onClose} style={{ background:"transparent", border:"1px solid var(--mg-vit-a20)", borderRadius:50, padding:".5rem 1.1rem", cursor:"pointer", fontFamily:"inherit", fontSize:".82rem", color:"var(--mg-dampad)" }}>Avbryt</button>
                 <button type="submit" disabled={laddar||!form.kommentar}
-                  style={{ background:!form.kommentar||laddar?"var(--mg-guld-a30)":"linear-gradient(135deg,var(--mg-guld),var(--mg-guld-mork))", color:"var(--mg-bg-1)", border:"none", borderRadius:50, padding:".5rem 1.3rem", cursor:!form.kommentar||laddar?"default":"pointer", fontFamily:"inherit", fontSize:".82rem", fontWeight:700 }}>
+                  style={{ background:!form.kommentar||laddar?"var(--mg-avstangd-yta)":"linear-gradient(135deg,var(--mg-guld),var(--mg-guld-mork))", color:!form.kommentar||laddar?"var(--mg-avstangd-text)":"var(--mg-bg-1)", border:"none", borderRadius:50, padding:".5rem 1.3rem", cursor:!form.kommentar||laddar?"default":"pointer", fontFamily:"inherit", fontSize:".82rem", fontWeight:700 }}>
                   {laddar?"Skickar…":"Skicka ✉️"}
                 </button>
               </div>
@@ -884,12 +884,13 @@ export default function App() {
     <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, var(--mg-bg-1) 0%, var(--mg-bg-2) 50%, var(--mg-bg-3) 100%)", fontFamily: "'DM Sans', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem 1rem" }}>
       <style>{globalCSS}</style>
       <div className="fi" style={{ textAlign: "center", maxWidth: 480, width: "100%" }}>
-        <div style={{ fontSize: "2.8rem", marginBottom: "8px" }}>📚</div>
-        <h1 style={{ fontFamily: "'Newsreader', serif", fontSize: "clamp(28px, 6vw, 44px)", fontWeight: 700, background: "linear-gradient(135deg, var(--mg-guld), var(--mg-guld-ljus))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: "8px" }}>
-          ModersmålsGuiden
+        {/* Norvay-tema: layout "stack" med formen "circle" */}
+        <div className="mg-motif" aria-hidden="true">📚</div>
+        <h1 className="mg-hero-title" style={{ fontFamily: "'Newsreader', serif", fontSize: "clamp(32px, 7vw, 48px)", color: "var(--mg-text)", lineHeight: 1.05, marginBottom: "10px" }}>
+          Modersmåls<em>Guiden</em>
         </h1>
         <p style={{ color: "var(--mg-dampad-2)", fontSize: "14px", marginBottom: "8px" }}>Differentierad lektionsplanering för modersmålslärare · Lgr22</p>
-        <p style={{ color: "var(--mg-guld)", fontSize: "13px", fontWeight: 600, background: "var(--mg-guld-a08)", border: "1px solid var(--mg-guld-a20)", borderRadius: "20px", padding: "5px 16px", display: "inline-block", marginBottom: "2rem" }}>
+        <p style={{ color: "var(--mg-guldaccent)", fontSize: "13px", fontWeight: 600, background: "var(--mg-guldaccent-yta)", border: "1px solid var(--mg-guldaccent-kant)", borderRadius: "20px", padding: "5px 16px", display: "inline-block", marginBottom: "2rem" }}>
           ✨ Skapa en färdig lektionsplan på under en minut
         </p>
 
