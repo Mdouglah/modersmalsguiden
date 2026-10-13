@@ -5,6 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="ModersmålsGuiden – differentierad lektionsplanering för modersmålslärare i svenska skolan, kopplat till Lgr22." />
     <title>ModersmålsGuiden</title>
+    <style>
+      /* ===== Appens färger (ändra här) – steg (a): samma värden som förut ===== */
+      :root {
+        --mg-guld: #e8b86d; /* guld (accent) */
+        --mg-guld-mork: #d4965a; /* mörkt guld (toningar) */
+        --mg-guld-ljus: #f5d69a; /* ljust guld */
+        --mg-guld-text: #f0d090; /* guldtext i lärarens bubbla */
+        --mg-guld-2: #d0c080; /* guld 2 */
+        --mg-guld-3: #b09040; /* guld 3 */
+        --mg-orange: #e8a020; /* orange */
+        --mg-orange-mork: #c87010; /* mörkorange */
+        --mg-bg-1: #1a1a2e; /* bakgrund, mörkast */
+        --mg-bg-2: #16213e; /* bakgrund 2 */
+        --mg-bg-3: #0f3460; /* bakgrund 3 */
+        --mg-text: #e8e8f0; /* ljus text */
+        --mg-text-2: #d0d0e8; /* ljus text 2 */
+        --mg-text-3: #b8b8d8; /* ljus text 3 */
+        --mg-text-4: #b0b0d0; /* ljus text 4 */
+        --mg-text-5: #cccce8; /* ljus text 5 */
+        --mg-text-6: #a0a0c0; /* ljus text 6 */
+        --mg-dampad: #8080b0; /* dämpad */
+        --mg-dampad-2: #6060a0; /* dämpad 2 */
+        --mg-dampad-3: #5050a0; /* dämpad 3 */
+        --mg-dampad-4: #7070a0; /* dämpad 4 */
+        --mg-dampad-5: #7070b0; /* dämpad 5 */
+        --mg-dampad-6: #505080; /* dämpad 6 */
+        --mg-dampad-7: #404060; /* dämpad 7 */
+        --mg-dampad-8: #303055; /* dämpad 8 */
+        --mg-dampad-9: #303060; /* dämpad 9 */
+        --mg-bla: #1565c0; /* blå */
+        --mg-bla-mork: #0d47a1; /* mörkblå */
+        --mg-bla-ljus: #90caf9; /* ljusblå */
+        --mg-bla-ljus-2: #b0d4f8; /* ljusblå 2 */
+        --mg-lila: #6a1b9a; /* lila */
+        --mg-lila-mork: #4a148c; /* mörklila (utskriftsknapp) */
+        --mg-fel: #ff6b6b; /* felmeddelande */
+        --mg-print-linje: #ddd; /* utskrift: linje */
+        --mg-print-yta: #fafafa; /* utskrift: yta */
+        --mg-print-yta-2: #f8f8f8; /* utskrift: yta 2 */
+        --mg-print-gul: #fffbe6; /* utskrift: gul */
+        --mg-print-gul-2: #fff8e6; /* utskrift: gul 2 */
+        --mg-print-text: #333; /* utskrift: text */
+        --mg-gra: #888; /* grå */
+        --mg-gra-ljus: #ccc; /* ljusgrå */
+        --mg-bla-a09: rgba(21,101,192,0.09);
+        --mg-bla-a22: rgba(21,101,192,0.22);
+        --mg-bla-a40: rgba(21,101,192,.4);
+        --mg-guld-a06: rgba(232,184,109,0.06);
+        --mg-guld-a07: rgba(232,184,109,0.07);
+        --mg-guld-a08: rgba(232,184,109,0.08);
+        --mg-guld-a10: rgba(232,184,109,0.1);
+        --mg-guld-a11: rgba(232,184,109,0.11);
+        --mg-guld-a12: rgba(232,184,109,0.12);
+        --mg-guld-a14: rgba(232,184,109,0.14);
+        --mg-guld-a15: rgba(232,184,109,0.15);
+        --mg-guld-a17: rgba(232,184,109,0.17);
+        --mg-guld-a18: rgba(232,184,109,0.18);
+        --mg-guld-a20: rgba(232,184,109,0.2);
+        --mg-guld-a22: rgba(232,184,109,0.22);
+        --mg-guld-a25: rgba(232,184,109,0.25);
+        --mg-guld-a30: rgba(232,184,109,0.3);
+        --mg-guld-a35: rgba(232,184,109,0.35);
+        --mg-guld-a40: rgba(232,184,109,0.4);
+        --mg-guld-a45: rgba(232,184,109,0.45);
+        --mg-guld-a50: rgba(232,184,109,0.5);
+        --mg-guld-a60: rgba(232,184,109,0.6);
+        --mg-guldmork-a06: rgba(212,150,90,0.06);
+        --mg-guldmork-a07: rgba(212,150,90,0.07);
+        --mg-guldmork-a08: rgba(212,150,90,0.08);
+        --mg-guldmork-a10: rgba(212,150,90,0.1);
+        --mg-guldmork-a14: rgba(212,150,90,0.14);
+        --mg-lila-a40: rgba(106,27,154,.4);
+        --mg-svart-a20: rgba(0,0,0,0.2);
+        --mg-svart-a30: rgba(0,0,0,0.3);
+        --mg-svart-a50: rgba(0,0,0,0.5);
+        --mg-svart-a60: rgba(0,0,0,0.6);
+        --mg-vit-a02: rgba(255,255,255,0.02);
+        --mg-vit-a03: rgba(255,255,255,0.03);
+        --mg-vit-a04: rgba(255,255,255,0.04);
+        --mg-vit-a05: rgba(255,255,255,0.05);
+        --mg-vit-a06: rgba(255,255,255,0.06);
+        --mg-vit-a07: rgba(255,255,255,0.07);
+        --mg-vit-a08: rgba(255,255,255,0.08);
+        --mg-vit-a09: rgba(255,255,255,0.09);
+        --mg-vit-a10: rgba(255,255,255,0.1);
+        --mg-vit-a12: rgba(255,255,255,0.12);
+        --mg-vit-a13: rgba(255,255,255,0.13);
+        --mg-vit-a15: rgba(255,255,255,0.15);
+        --mg-vit-a20: rgba(255,255,255,0.2);
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
