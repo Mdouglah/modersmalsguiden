@@ -3,8 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="ModersmålsGuiden – differentierad lektionsplanering för modersmålslärare i svenska skolan, kopplat till Lgr22." />
-    <title>ModersmålsGuiden</title>
+    <meta name="description" content="Modersmålsguiden från Norvay: lektionsplanering för modersmålsundervisning, med aktiviteter och fraser på både svenska och modersmålet, kopplat till Lgr22." />
+    <title>Modersmålsguiden – lektionsplanering för modersmålsundervisning | Norvay</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23f5f3ec' stroke='%23123f37' stroke-width='1.5'/%3E%3Ctext x='16' y='21' font-family='Georgia,serif' font-size='15' text-anchor='middle' fill='%23123f37'%3EN%3C/text%3E%3C/svg%3E" />
+    <script>
+      /* Nattläge, samma som på Norvay: sätts innan sidan ritas. Utan sparat val följer sidan enhetens inställning.
+         Valet sparas i kakan "norvay-tema" (bara light eller dark) för hela norvayapp.se. */
+      (function(){var t,m=document.cookie.match(/(?:^|; )norvay-tema=(light|dark)/);if(m)t=m[1];if(!t){try{t=localStorage.getItem('norvay-tema')}catch(e){}}if(t!=='dark'&&t!=='light'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t)})();
+    </script>
     <style>
       /* ===== Norvay-tema (samma som kuratorn-allman/src/theme.css), kategori skola ===== */
       :root {
@@ -18,7 +24,7 @@
         --mg-avstangd-text: #4f6b63;            /* text på avstängd knapp (kontrast 4,6) */
         --mg-rubrik-em: #a4533c;               /* mörkare terrakotta för stor rubrik (kontrast) */
       }
-      body { margin: 0; background: #f5f3ec; }
+      body { margin: 0; background: var(--n-bg); }
       /* Rubriker i Newsreader har vanlig vikt i Norvay-temat */
       [style*="Newsreader"] { font-weight: 400 !important; }
       /* Startsidans sidhuvud: layout "stack" med formen "circle" */
@@ -116,7 +122,47 @@
         --mg-vit-a13: rgba(18,63,55,0.14);
         --mg-vit-a15: rgba(18,63,55,0.18);
         --mg-vit-a20: rgba(18,63,55,0.22);
+        --mg-niva-andel: 100%; /* nivåfärgernas styrka som text (100 % = exakt färgen) */
       }
+      /* ===== Nattläge (samma grundfärger som Norvays mörka läge) ===== */
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --n-bg: #0f2a24; --n-surface: #163731; --n-ink: #ece7da; --n-ink-soft: #a9bdb5; --n-line: rgba(236,231,218,0.14);
+        --n-terracotta: #e3a58f; --n-accent: #8fc2a8; --n-tint: #1f4239;
+        --mg-guldaccent: #d9b77f; --mg-guldaccent-dekor: #c9a46c;
+        --mg-avstangd-yta: #24493f; --mg-avstangd-text: #a9bdb5;
+        --mg-rubrik-em: #e3a58f;
+        --mg-guld: #8fc2a8; --mg-guld-mork: #6fa58c; --mg-guld-ljus: #a8d1bb; --mg-guld-text: #ece7da;
+        --mg-guld-2: #d9b77f; --mg-guld-3: #d9b77f;
+        --mg-bg-1: #0f2a24; --mg-bg-2: #0f2a24; --mg-bg-3: #0f2a24;
+        --mg-text: #ece7da; --mg-text-2: #ece7da; --mg-text-3: #d5ddd8; --mg-text-4: #d5ddd8; --mg-text-5: #d5ddd8; --mg-text-6: #a9bdb5;
+        --mg-dampad: #a9bdb5; --mg-dampad-2: #a9bdb5; --mg-dampad-3: #a9bdb5; --mg-dampad-4: #a9bdb5; --mg-dampad-5: #a9bdb5;
+        --mg-dampad-6: #a9bdb5; --mg-dampad-7: #a9bdb5; --mg-dampad-8: #a9bdb5; --mg-dampad-9: #a9bdb5;
+        --mg-bla: #8fc2a8; --mg-bla-mork: #6fa58c; --mg-bla-ljus: #ece7da; --mg-bla-ljus-2: #d5ddd8;
+        --mg-fel: #f0a99a;
+        --mg-bla-a09: rgba(143,194,168,0.09); --mg-bla-a22: rgba(143,194,168,0.22); --mg-bla-a40: rgba(143,194,168,0.4);
+        --mg-guld-a06: rgba(143,194,168,0.06); --mg-guld-a07: rgba(143,194,168,0.07); --mg-guld-a08: rgba(143,194,168,0.08);
+        --mg-guld-a10: rgba(143,194,168,0.1); --mg-guld-a11: rgba(143,194,168,0.11); --mg-guld-a12: rgba(143,194,168,0.12);
+        --mg-guld-a14: rgba(143,194,168,0.14); --mg-guld-a15: rgba(143,194,168,0.15); --mg-guld-a17: rgba(143,194,168,0.17);
+        --mg-guld-a18: rgba(143,194,168,0.18); --mg-guld-a20: rgba(143,194,168,0.2); --mg-guld-a22: rgba(143,194,168,0.22);
+        --mg-guld-a25: rgba(143,194,168,0.25); --mg-guld-a30: rgba(143,194,168,0.3); --mg-guld-a35: rgba(143,194,168,0.35);
+        --mg-guld-a40: rgba(143,194,168,0.4); --mg-guld-a45: rgba(143,194,168,0.45); --mg-guld-a50: rgba(143,194,168,0.5);
+        --mg-guld-a60: rgba(143,194,168,0.6);
+        --mg-guldmork-a06: rgba(143,194,168,0.06); --mg-guldmork-a07: rgba(143,194,168,0.07); --mg-guldmork-a08: rgba(143,194,168,0.08);
+        --mg-guldmork-a10: rgba(143,194,168,0.1); --mg-guldmork-a14: rgba(143,194,168,0.14);
+        --mg-lila-a40: rgba(0,0,0,0.3); --mg-svart-a20: rgba(0,0,0,0.2); --mg-svart-a30: rgba(0,0,0,0.25); --mg-svart-a50: rgba(0,0,0,0.35); --mg-svart-a60: rgba(0,0,0,0.6);
+        --mg-vit-a02: #163731; --mg-vit-a03: #163731; --mg-vit-a04: #163731; --mg-vit-a05: #163731; --mg-vit-a06: #163731; --mg-vit-a07: #163731;
+        --mg-vit-a08: rgba(236,231,218,0.14); --mg-vit-a09: rgba(236,231,218,0.14); --mg-vit-a10: rgba(236,231,218,0.14);
+        --mg-vit-a12: rgba(236,231,218,0.14); --mg-vit-a13: rgba(236,231,218,0.14); --mg-vit-a15: rgba(236,231,218,0.18); --mg-vit-a20: rgba(236,231,218,0.22);
+        --mg-niva-andel: 35%; /* ljusare nivåfärger som text på mörk botten */
+      }
+      :root[data-theme="dark"] input, :root[data-theme="dark"] textarea, :root[data-theme="dark"] select { color-scheme: dark; }
+      /* Utskrift alltid ljus */
+      @media print {
+        :root[data-theme="dark"] { --n-bg: #ffffff; --mg-bg-1: #ffffff; --mg-bg-2: #ffffff; --mg-bg-3: #ffffff; --mg-text: #123f37; --mg-text-2: #123f37; --mg-text-3: #2f4d46; --mg-dampad: #4f6b63; --mg-guld: #2f6b5a; --mg-vit-a04: #ffffff; --mg-vit-a06: #ffffff; --mg-niva-andel: 100%; }
+      }
+      /* Gemensam sidfot: marginaler */
+      .norvay-footer { padding: 0 20px 24px; }
     </style>
     <!-- Modersmålsguiden -->
 <script defer src="https://cloud.umami.is/script.js" data-website-id="2e81b730-fb1d-4183-9323-de51c8949318" data-tag="modersmalsguiden" data-do-not-track="true"></script>

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import Markdown, { tillText } from "./Markdown.jsx";
+import { NorvayFooter } from "./NorvayBar.jsx";
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 const SPRAK = [
@@ -214,7 +215,7 @@ function ChattLage({ onBack }) {
         <button onClick={onBack} className="knapp-sek" style={{ padding: ".35rem .8rem", fontSize: ".78rem", flexShrink: 0 }}>← Hem</button>
         <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, var(--mg-guld), var(--mg-guld-mork))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", flexShrink: 0 }}>📚</div>
         <div style={{ flex: 1 }}>
-          <div style={{ color: "var(--mg-guld)", fontWeight: 700, fontSize: ".95rem", fontFamily: "'Newsreader', serif" }}>ModersmålsGuiden</div>
+          <div style={{ color: "var(--mg-guld)", fontWeight: 700, fontSize: ".95rem", fontFamily: "'Newsreader', serif" }}>Modersmålsguiden</div>
           <div style={{ color: "var(--mg-dampad-2)", fontSize: ".68rem" }}>Chattläge · Lgr22 · Beskriv fritt vad du behöver</div>
         </div>
         {messages.length > 0 && (
@@ -262,7 +263,7 @@ function ChattLage({ onBack }) {
                 <div style={{ display: "flex", alignItems: "center", gap: ".45rem", marginBottom: ".35rem", justifyContent: "space-between" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: ".45rem" }}>
                     <div style={{ width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, var(--mg-guld), var(--mg-guld-mork))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: ".7rem", flexShrink: 0 }}>📚</div>
-                    <span style={{ color: "var(--mg-guld)", fontSize: ".72rem", fontWeight: 700, letterSpacing: ".3px" }}>ModersmålsGuiden</span>
+                    <span style={{ color: "var(--mg-guld)", fontSize: ".72rem", fontWeight: 700, letterSpacing: ".3px" }}>Modersmålsguiden</span>
                   </div>
                   {/* Kopiera-knapp per svar */}
                   <button
@@ -457,7 +458,7 @@ function GuidatLage({ onBack }) {
       <div style={{ padding: "20px 24px 0", display: "flex", alignItems: "center", gap: "12px" }} className="no-print">
         <button onClick={onBack} className="knapp-sek" style={{ padding: ".3rem .8rem", fontSize: ".78rem" }}>← Hem</button>
         <div style={{ textAlign: "center", flex: 1 }}>
-          <h1 style={{ fontFamily: "'Newsreader', serif", fontSize: "clamp(22px, 4vw, 36px)", fontWeight: 700, background: "linear-gradient(135deg, var(--mg-guld), var(--mg-guld-ljus))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>ModersmålsGuiden</h1>
+          <h1 style={{ fontFamily: "'Newsreader', serif", fontSize: "clamp(22px, 4vw, 36px)", fontWeight: 700, background: "linear-gradient(135deg, var(--mg-guld), var(--mg-guld-ljus))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Modersmålsguiden</h1>
           <p style={{ color: "var(--mg-dampad-2)", fontSize: "13px" }}>Guidat läge · Lgr22</p>
         </div>
         <div style={{ width: 80 }} />
@@ -537,7 +538,7 @@ function GuidatLage({ onBack }) {
                 <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "14px" }} className="no-print">
                   {resultat.nivaer?.map((n, i) => (
                     <button key={i} className="niva-tab" onClick={() => setAktivNiva(aktivNiva === i ? null : i)}
-                      style={{ background: aktivNiva === i ? (NIVA_FARG[n.niva] || "#888") : "rgba(255,255,255,0.06)", color: aktivNiva === i ? "white" : (NIVA_FARG[n.niva] || "#ccc"), border: `2px solid ${aktivNiva === i ? "transparent" : ((NIVA_FARG[n.niva] || "#888") + "44")}` }}>
+                      style={{ background: aktivNiva === i ? (NIVA_FARG[n.niva] || "#888") : "rgba(255,255,255,0.06)", color: aktivNiva === i ? "white" : `color-mix(in srgb, ${NIVA_FARG[n.niva] || "#888"} var(--mg-niva-andel), #ece7da)`, border: `2px solid ${aktivNiva === i ? "transparent" : ((NIVA_FARG[n.niva] || "#888") + "44")}` }}>
                       {n.niva}
                     </button>
                   ))}
@@ -549,7 +550,7 @@ function GuidatLage({ onBack }) {
                 {resultat.nivaer?.map((n, i) => (
                   (aktivNiva === null || aktivNiva === i) && (
                     <div key={i} className="niva-sektion fade-up" style={{ borderLeftColor: NIVA_FARG[n.niva] || "var(--mg-gra)" }}>
-                      <div style={{ fontWeight: 700, fontSize: "14px", color: NIVA_FARG[n.niva] || "var(--mg-text)", marginBottom: "12px" }}>{n.niva}</div>
+                      <div style={{ fontWeight: 700, fontSize: "14px", color: NIVA_FARG[n.niva] ? `color-mix(in srgb, ${NIVA_FARG[n.niva]} var(--mg-niva-andel), #ece7da)` : "var(--mg-text)", marginBottom: "12px" }}>{n.niva}</div>
                       <div style={{ marginBottom: "12px" }}>
                         <div className="label">Aktivitet</div>
                         <p style={{ fontSize: "14px", lineHeight: "1.7", color: "var(--mg-text-5)" }}>{sprakvisning === "svenska" ? n.aktivitetSvenska : n.aktivitetMalsprak}</p>
@@ -797,12 +798,12 @@ function FeedbackModal({ onClose }) {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({
-          app: "ModersmålsGuiden",
+          app: "Modersmålsguiden",
           namn: form.namn || "Anonym",
           sprak: form.sprak,
           betyg: form.betyg,
           kommentar: form.kommentar,
-          _subject: `ModersmålsGuiden Feedback – ${form.sprak || "Allmänt"}`,
+          _subject: `Modersmålsguiden Feedback – ${form.sprak || "Allmänt"}`,
         }),
       });
       setSkickat(true);
@@ -820,7 +821,7 @@ function FeedbackModal({ onClose }) {
           <div style={{ textAlign:"center", padding:"1rem 0" }}>
             <div style={{ fontSize:"2.5rem", marginBottom:".5rem" }}>🎉</div>
             <h2 style={{ color:"var(--mg-guld)", margin:"0 0 .5rem", fontFamily:"'Newsreader', serif" }}>Tack för din feedback!</h2>
-            <p style={{ color:"var(--mg-dampad)", fontSize:".85rem", marginBottom:"1.2rem", lineHeight:1.6 }}>Din feedback hjälper mig att förbättra ModersmålsGuiden.</p>
+            <p style={{ color:"var(--mg-dampad)", fontSize:".85rem", marginBottom:"1.2rem", lineHeight:1.6 }}>Din feedback hjälper oss att förbättra Modersmålsguiden.</p>
             <button onClick={onClose} style={{ background:"linear-gradient(135deg,var(--mg-guld),var(--mg-guld-mork))", color:"var(--mg-bg-1)", border:"none", borderRadius:50, padding:".6rem 1.5rem", cursor:"pointer", fontFamily:"inherit", fontSize:".85rem", fontWeight:700 }}>Stäng</button>
           </div>
         ) : (
@@ -829,7 +830,7 @@ function FeedbackModal({ onClose }) {
               <h2 style={{ margin:0, color:"var(--mg-guld)", fontSize:"1.1rem", fontFamily:"'Newsreader', serif" }}>📝 Ge feedback</h2>
               <button onClick={onClose} style={{ background:"none", border:"none", fontSize:"1.3rem", cursor:"pointer", color:"var(--mg-dampad-2)" }}>✕</button>
             </div>
-            <p style={{ color:"var(--mg-dampad-2)", fontSize:".8rem", marginBottom:"1rem", lineHeight:1.6 }}>Din feedback skickas direkt till mig och hjälper mig förbättra appen.</p>
+            <p style={{ color:"var(--mg-dampad-2)", fontSize:".8rem", marginBottom:"1rem", lineHeight:1.6 }}>Din feedback skickas direkt till oss och hjälper oss att förbättra appen.</p>
             <form onSubmit={skicka}>
               <div style={{ marginBottom:".75rem" }}>
                 <label style={{ fontSize:".78rem", color:"var(--mg-guld)", fontWeight:600, display:"block", marginBottom:".3rem" }}>Namn (valfritt)</label>
@@ -887,7 +888,7 @@ export default function App() {
         {/* Norvay-tema: layout "stack" med formen "circle" */}
         <div className="mg-motif" aria-hidden="true">📚</div>
         <h1 className="mg-hero-title" style={{ fontFamily: "'Newsreader', serif", fontSize: "clamp(32px, 7vw, 48px)", color: "var(--mg-text)", lineHeight: 1.05, marginBottom: "10px" }}>
-          Modersmåls<em>Guiden</em>
+          Modersmåls<em>guiden</em>
         </h1>
         <p style={{ color: "var(--mg-dampad-2)", fontSize: "14px", marginBottom: "8px" }}>Differentierad lektionsplanering för modersmålslärare · Lgr22</p>
         <p style={{ color: "var(--mg-guldaccent)", fontSize: "13px", fontWeight: 600, background: "var(--mg-guldaccent-yta)", border: "1px solid var(--mg-guldaccent-kant)", borderRadius: "20px", padding: "5px 16px", display: "inline-block", marginBottom: "2rem" }}>
@@ -925,7 +926,8 @@ export default function App() {
           📝 Ge feedback på appen
         </button>
 
-        <p style={{ color: "var(--mg-dampad-9)", fontSize: ".7rem" }}>av MD · modersmalsguiden.vercel.app</p>
+        <p style={{ color: "var(--mg-dampad-9)", fontSize: ".7rem" }}>av MD</p>
+        <NorvayFooter />
       </div>
     </div>
   );

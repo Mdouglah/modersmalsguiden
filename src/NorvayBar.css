@@ -1,10 +1,29 @@
 /* Gemensam Norvay-list överst. Nollställer det appens egna stilar kan ge, så att listen ser likadan ut i alla appar. */
 .norvay-bar, .norvay-bar * { margin: 0; text-transform: none; font-style: normal; }
-.norvay-bar { box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; min-height: 44px; padding: 8px 20px; background: #f5f3ec; border-bottom: 1px solid rgba(18,63,55,0.14); font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.2; }
-.norvay-bar a { color: #123f37; text-decoration: none; }
+.norvay-bar { box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; min-height: 44px; padding: 0 20px; background: #f5f3ec; border-bottom: 1px solid rgba(18,63,55,0.14); font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.2; }
+.norvay-bar a { color: #123f37; text-decoration: none; display: inline-flex; align-items: center; min-height: 44px; }
 .norvay-bar a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .norvay-bar a:focus-visible { outline: 3px solid #2f6b5a; outline-offset: 3px; border-radius: 6px; }
 .norvay-bar-back { font-weight: 500; }
+.norvay-bar-right { display: inline-flex; align-items: center; gap: 12px; }
 .norvay-bar-brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 12px; letter-spacing: 0.2em; }
 .norvay-bar-mark { width: 24px; height: 24px; border: 1.5px solid #123f37; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-family: Georgia, serif; font-size: 13px; letter-spacing: 0; }
-@media print { .norvay-bar { display: none !important; } }
+/* Månknappen: samma som på Norvays startsida (40 px, rund, ikon 18 px) */
+.norvay-tema { width: 40px; height: 40px; flex: 0 0 40px; border-radius: 50%; border: 1px solid rgba(18,63,55,0.14); background: transparent; color: #123f37; display: inline-grid; place-items: center; cursor: pointer; padding: 0; transition: border-color .3s ease, color .3s ease; }
+.norvay-tema:hover { border-color: #c9785f; color: #c9785f; }
+.norvay-tema:focus-visible { outline: 3px solid #2f6b5a; outline-offset: 3px; }
+.norvay-tema svg { width: 18px; height: 18px; }
+/* Mörkt läge */
+:root[data-theme="dark"] .norvay-bar { background: #0f2a24; border-bottom-color: rgba(236,231,218,0.14); }
+:root[data-theme="dark"] .norvay-bar a { color: #ece7da; }
+:root[data-theme="dark"] .norvay-bar-mark { border-color: #ece7da; }
+:root[data-theme="dark"] .norvay-tema { color: #ece7da; border-color: rgba(236,231,218,0.14); }
+:root[data-theme="dark"] .norvay-tema:hover { border-color: #e3a58f; color: #e3a58f; }
+:root[data-theme="dark"] .norvay-tema:focus-visible, :root[data-theme="dark"] .norvay-bar a:focus-visible { outline-color: #8fc2a8; }
+/* Gemensam sidfot */
+.norvay-footer { font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: .85rem; color: #4f6b63; text-align: center; margin: 1.5rem 0 0; line-height: 1.6; }
+.norvay-footer a { color: #2f6b5a; text-underline-offset: 3px; }
+:root[data-theme="dark"] .norvay-footer { color: #a9bdb5; }
+:root[data-theme="dark"] .norvay-footer a { color: #8fc2a8; }
+@media (prefers-reduced-motion: reduce) { .norvay-tema { transition: none; } }
+@media print { .norvay-bar, .norvay-footer { display: none !important; } }
