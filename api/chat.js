@@ -27,7 +27,7 @@ const MAX_TOTAL = 25000;      // max antal tecken i hela konversationen (svaren 
 const MAX_TOKENS = 1500;      // tak för AI-svarets längd
 
 function tillatnaAdresser() {
-  const lista = ["https://modersmalsguiden.vercel.app"];
+  const lista = ["https://modersmalsguiden.norvayapp.se", "https://modersmalsguiden.vercel.app"];
   if (process.env.VERCEL_URL) lista.push(`https://${process.env.VERCEL_URL}`);
   if (process.env.VERCEL_BRANCH_URL) lista.push(`https://${process.env.VERCEL_BRANCH_URL}`);
   if (process.env.ALLOWED_ORIGINS) {

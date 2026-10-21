@@ -11,7 +11,7 @@ export const config = {
 // ─────────────────────────────────────────────────────────────
 
 function tillatnaAdresser() {
-  const lista = ["https://modersmalsguiden.vercel.app"];
+  const lista = ["https://modersmalsguiden.norvayapp.se", "https://modersmalsguiden.vercel.app"];
   if (process.env.VERCEL_URL) lista.push(`https://${process.env.VERCEL_URL}`);
   if (process.env.VERCEL_BRANCH_URL) lista.push(`https://${process.env.VERCEL_BRANCH_URL}`);
   if (process.env.ALLOWED_ORIGINS) {
