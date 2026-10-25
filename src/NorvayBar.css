@@ -25,5 +25,7 @@
 .norvay-footer a { color: #2f6b5a; text-underline-offset: 3px; }
 :root[data-theme="dark"] .norvay-footer { color: #a9bdb5; }
 :root[data-theme="dark"] .norvay-footer a { color: #8fc2a8; }
+/* Länken "Stöd Norvay" i sidfoten: samma färg som sidfotens länkar, synlig fokusram, aldrig på papper */
+.norvay-stod:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; border-radius: 4px; }
 @media (prefers-reduced-motion: reduce) { .norvay-tema { transition: none; } }
-@media print { .norvay-bar, .norvay-footer { display: none !important; } }
+@media print { .norvay-bar, .norvay-footer, .norvay-stod { display: none !important; } }
