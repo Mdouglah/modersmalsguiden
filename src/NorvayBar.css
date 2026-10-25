@@ -13,6 +13,17 @@
 .norvay-tema:hover { border-color: #c9785f; color: #c9785f; }
 .norvay-tema:focus-visible { outline: 3px solid #2f6b5a; outline-offset: 3px; }
 .norvay-tema svg { width: 18px; height: 18px; }
+/* Knappen "Stöd Norvay": samma som på Norvays startsida (rundad, fet text, hjärta), direkt till vänster om månknappen */
+.norvay-bar a.norvay-bar-stod { position: relative; min-height: 0; gap: 6px; padding: 8px 16px; border-radius: 999px; background: #123f37; color: #f5f3ec; font-weight: 700; white-space: nowrap; transition: background-color .2s ease; }
+.norvay-bar a.norvay-bar-stod::after { content: ""; position: absolute; inset: -6px 0; } /* tryckyta minst 44 px hög */
+.norvay-bar a.norvay-bar-stod:hover { background: #0f362f; color: #f5f3ec; text-decoration: none; }
+.norvay-bar a.norvay-bar-stod:focus-visible { outline: 3px solid #2f6b5a; outline-offset: 3px; border-radius: 999px; }
+.norvay-bar-stod svg { width: 15px; height: 15px; flex: 0 0 15px; }
+/* Mobil: bara hjärtat i en rund knapp (skärmläsare läser fortfarande "Stöd Norvay") */
+@media (max-width: 480px) {
+  .norvay-bar a.norvay-bar-stod { padding: 9px; }
+  .norvay-bar-stod span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
 /* Mörkt läge */
 :root[data-theme="dark"] .norvay-bar { background: #0f2a24; border-bottom-color: rgba(236,231,218,0.14); }
 :root[data-theme="dark"] .norvay-bar a { color: #ece7da; }
@@ -20,12 +31,12 @@
 :root[data-theme="dark"] .norvay-tema { color: #ece7da; border-color: rgba(236,231,218,0.14); }
 :root[data-theme="dark"] .norvay-tema:hover { border-color: #e3a58f; color: #e3a58f; }
 :root[data-theme="dark"] .norvay-tema:focus-visible, :root[data-theme="dark"] .norvay-bar a:focus-visible { outline-color: #8fc2a8; }
+:root[data-theme="dark"] .norvay-bar a.norvay-bar-stod { background: #8fc2a8; color: #0f2a24; }
+:root[data-theme="dark"] .norvay-bar a.norvay-bar-stod:hover { background: #7aa58f; color: #0f2a24; }
 /* Gemensam sidfot */
 .norvay-footer { font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: .85rem; color: #4f6b63; text-align: center; margin: 1.5rem 0 0; line-height: 1.6; }
 .norvay-footer a { color: #2f6b5a; text-underline-offset: 3px; }
 :root[data-theme="dark"] .norvay-footer { color: #a9bdb5; }
 :root[data-theme="dark"] .norvay-footer a { color: #8fc2a8; }
-/* Länken "Stöd Norvay" i sidfoten: samma färg som sidfotens länkar, synlig fokusram, aldrig på papper */
-.norvay-stod:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; border-radius: 4px; }
-@media (prefers-reduced-motion: reduce) { .norvay-tema { transition: none; } }
-@media print { .norvay-bar, .norvay-footer, .norvay-stod { display: none !important; } }
+@media (prefers-reduced-motion: reduce) { .norvay-tema, .norvay-bar a.norvay-bar-stod { transition: none; } }
+@media print { .norvay-bar, .norvay-footer, .norvay-bar-stod { display: none !important; } }
